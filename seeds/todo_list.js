@@ -3,10 +3,8 @@
  * @returns { Promise<void> }
  */
 export async function seed(knex) {
-  // Clear existing entries
   await knex('TODO_LIST').del();
 
-  // Your array of todos
   const todos = [
     { TITLE: 'Fix the quantum interference device broken by Stuart Bloom', STATUS: 'PENDING' },
     { TITLE: 'Escape the repressive AI on the idyllic version of Earth', STATUS: 'PENDING' },
@@ -22,7 +20,6 @@ export async function seed(knex) {
     { TITLE: 'Find the original universe where Leonard and Sheldon live', STATUS: 'PENDING' }
   ];
 
-  // Insert one by one (Oracle-compatible)
   for (const todo of todos) {
     await knex('TODO_LIST').insert(todo);
   }
