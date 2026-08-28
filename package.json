@@ -1,0 +1,20 @@
+{
+  "name": "oracle-objection-todo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate:make": "knex migrate:make --knexfile knexfile.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "knex": "^3.3.0",
+    "objection": "^3.1.5",
+    "oracledb": "^7.0.1"
+  }
+}

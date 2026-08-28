@@ -1,0 +1,9 @@
+export default {
+  client: 'oracledb',
+  connection: {
+    user: 'albertoi',
+    password: 'albertoi',
+    connectString: 'oracle-dev-scan/pdbdev_srv'
+  },
+  pool: { min: 2, max: 10 }
+};

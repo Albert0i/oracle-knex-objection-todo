@@ -1,0 +1,6 @@
+
+ORACLE_USERNAME=your_username
+
+ORACLE_PASSWORD=your_secure_password
+
+ORACLE_CONNECTION_STRING=localhost/XEPDB1
