@@ -257,3 +257,34 @@ The key takeaway: **commit your migration files, run them consistently, seed you
 ### Word Count Note
 This article is approximately 2500 words, blending narrative, explanation, and code examples. It’s designed as a comprehensive guide for developers learning Knex migrations and seeds with Oracle.  
 
+
+Great catch — yes, it’s a good idea to add **handy scripts** to your `package.json` so you don’t have to type long Knex commands every time. That way, you can run migrations and seeds with short aliases like `npm run migrate:latest` instead of remembering the full command.
+
+Here’s a practical example you can drop into your `package.json`:
+
+```json
+{
+  "scripts": {
+    "migrate:make": "knex migrate:make --knexfile knexfile.js",
+    "migrate:latest": "knex migrate:latest --knexfile knexfile.js",
+    "migrate:rollback": "knex migrate:rollback --knexfile knexfile.js",
+    "seed:make": "knex seed:make --knexfile knexfile.js",
+    "seed:run": "knex seed:run --knexfile knexfile.js"
+  }
+}
+```
+
+### 🔧 How it works
+- `npm run migrate:make create_todo_list` → generates a new migration file.
+- `npm run migrate:latest` → applies all pending migrations.
+- `npm run migrate:rollback` → undoes the last migration.
+- `npm run seed:make todo_list` → generates a new seed file.
+- `npm run seed:run` → runs all seeds.
+
+This setup keeps your workflow consistent and avoids mistakes like forgetting to specify the `knexfile.js`.
+
+---
+
+✅ So yes, you should commit the **migration files** to GitHub, and also keep these **scripts in package.json**. That way, anyone cloning your repo can run the same commands and get the same schema.  
+
+Do you want me to show you a **recommended full set of scripts** (including `migrate:rollback --all` and `migrate:up`) so you have every lifecycle command at your fingertips?
