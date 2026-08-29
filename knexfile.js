@@ -16,7 +16,7 @@ export default {
     },
     migrations: {
       directory: './migrations',
-      tableName: '__knex_migrations',
+      tableName: 'knex_migrations',
       stub: './stubs/migration.stub'
     },
     seeds: {

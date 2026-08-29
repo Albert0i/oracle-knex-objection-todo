@@ -1,0 +1,54 @@
+
+To create a migration: 
+```
+npx knex migrate:make create_todo_list
+npm run migrate:make -- create_todo_list 
+```
+
+To run a migration:
+```
+npx knex migrate:latest 
+npm run migrate:latest 
+```
+
+To rollback a migration 
+```
+npx knex migrate:rollback
+npm run migrate:rollback 
+```
+
+To create a seed:
+```
+npx knex seed:make seed_todos
+npm run seed:make -- seed_todos
+```
+To run a seed: 
+```
+npx knex seed:run 
+npm run seed:run
+```
+
+To create migration to add more fields:
+```
+npm run migrate:make -- add_fields_to_todo_list
+
+```
+
+
+alter table albertoi.todo_list modify (status invisible)
+alter table albertoi.todo_list modify (status visible)
+
+alter table albertoi.todo_list modify (createdat invisible)
+alter table albertoi.todo_list modify (createdat visible)
+
+
+ALTER TABLE DCWRKDTA.NPOTCMS MODIFY ( 
+NPOTDAT INVISIBLE, NPOTSTS INVISIBLE, NPOTREM INVISIBLE, CHGID INVISIBLE, CHGDATE INVISIBLE, 
+CHGTIME INVISIBLE, CRTID INVISIBLE, CRTDATE INVISIBLE, CRTTIME INVISIBLE, UPDATE_IDENT INVISIBLE);
+
+ALTER TABLE DCWRKDTA.NPOTCMS MODIFY ( 
+NPOTDAT VISIBLE, NPOTSTS VISIBLE, NPOTREM VISIBLE, CHGID VISIBLE, CHGDATE VISIBLE, 
+CHGTIME VISIBLE, CRTID VISIBLE, CRTDATE VISIBLE, CRTTIME VISIBLE, UPDATE_IDENT VISIBLE); 
+
+
+
