@@ -2,7 +2,7 @@
 .env*
 
 # Ignore migration directories
-migration/
+migrations/
 
 # Ignore Node.js dependencies
 node_modules/
