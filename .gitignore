@@ -1,14 +1,8 @@
 # Keep environment variables out of version control
 .env*
 
-# Ignore data directories
-oracle_data/
-prometheus_data/
-grafana_data/
-dbeaver_data/
+# Ignore migration directories
+migration/
 
 # Ignore Node.js dependencies
 node_modules/
-
-## Ignore tool folder 
-tool
