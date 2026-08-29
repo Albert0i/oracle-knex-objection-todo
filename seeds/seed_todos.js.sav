@@ -3,8 +3,10 @@
  * @returns { Promise<void> }
  */
 export async function seed(knex) {
+  // Deletes ALL existing entries
   await knex('TODO_LIST').del();
-
+  
+  // Inserts seed entries
   const todos = [
     { TITLE: 'Fix the quantum interference device broken by Stuart Bloom', STATUS: 'PENDING' },
     { TITLE: 'Escape the repressive AI on the idyllic version of Earth', STATUS: 'PENDING' },

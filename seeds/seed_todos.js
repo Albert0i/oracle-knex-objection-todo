@@ -6,20 +6,92 @@ export async function seed(knex) {
   // Deletes ALL existing entries
   await knex('TODO_LIST').del();
   
-  // Inserts seed entries
+  // Inserts seed entries with LOCATION and TELNUM
   const todos = [
-    { TITLE: 'Fix the quantum interference device broken by Stuart Bloom', STATUS: 'PENDING' },
-    { TITLE: 'Escape the repressive AI on the idyllic version of Earth', STATUS: 'PENDING' },
-    { TITLE: 'Enlist a powerful wizard to help Bert find a sorcery gift', STATUS: 'PENDING' },
-    { TITLE: 'Survive the post-apocalyptic Pasadena and avoid giant moths', STATUS: 'PENDING' },
-    { TITLE: 'Barter canned vegetables and cat food for rare comic books', STATUS: 'PENDING' },
-    { TITLE: 'Overthrow military dictator Barry Kripke in alternate reality', STATUS: 'PENDING' },
-    { TITLE: 'Locate Denise after she mysteriously disappears in the multiverse', STATUS: 'PENDING' },
-    { TITLE: 'Convince doctors in the mental institution that the multiverse is real', STATUS: 'PENDING' },
-    { TITLE: 'Break out of the Matrix pods before reality resets again', STATUS: 'PENDING' },
-    { TITLE: 'Undo the multiverse Armageddon accidentally unleashed by the gang', STATUS: 'PENDING' },
-    { TITLE: 'Help Gary secure his new job working for UPS', STATUS: 'PENDING' },
-    { TITLE: 'Find the original universe where Leonard and Sheldon live', STATUS: 'PENDING' }
+    { 
+      TITLE: 'Fix the quantum interference device broken by Stuart Bloom', 
+      STATUS: 'PENDING',
+      LOCATION: 'The Comic Center of Pasadena',
+      TELNUM: '555-0143',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Escape the repressive AI on the idyllic version of Earth', 
+      STATUS: 'PENDING',
+      LOCATION: 'Simulation Matrix Sector 4',
+      TELNUM: '555-0199',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Enlist a powerful wizard to help Bert find a sorcery gift', 
+      STATUS: 'PENDING',
+      LOCATION: 'Caltech Geology Lab',
+      TELNUM: '555-0172',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Survive the post-apocalyptic Pasadena and avoid giant moths', 
+      STATUS: 'PENDING',
+      LOCATION: 'Ruins of Los Robles Avenue',
+      TELNUM: '555-0121',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Barter canned vegetables and cat food for rare comic books', 
+      STATUS: 'PENDING',
+      LOCATION: 'Stuart’s Back Room Storage',
+      TELNUM: '555-0144',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Overthrow military dictator Barry Kripke in alternate reality', 
+      STATUS: 'PENDING',
+      LOCATION: 'Plasma Physics Bastion',
+      TELNUM: '555-0185',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Locate Denise after she mysteriously disappears in the multiverse', 
+      STATUS: 'PENDING',
+      LOCATION: 'Quantum Rift Coordinate X-72',
+      TELNUM: '555-0166',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Convince doctors in the mental institution that the multiverse is real', 
+      STATUS: 'PENDING',
+      LOCATION: 'Pasadena Medical Facility Room 3B',
+      TELNUM: '555-0150',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Break out of the Matrix pods before reality resets again', 
+      STATUS: 'PENDING',
+      LOCATION: 'Power Plant Sub-Level 9',
+      TELNUM: '555-0111',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Undo the multiverse Armageddon accidentally unleashed by the gang', 
+      STATUS: 'PENDING',
+      LOCATION: 'Apartment 4A Living Room',
+      TELNUM: '555-0100',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Help Gary secure his new job working for UPS', 
+      STATUS: 'PENDING',
+      LOCATION: 'Pasadena Distribution Center',
+      TELNUM: '555-0132',
+      UPDATE_IDENT: 0
+    },
+    { 
+      TITLE: 'Find the original universe where Leonard and Sheldon live', 
+      STATUS: 'PENDING',
+      LOCATION: 'Alpha Timeline Coordinates',
+      TELNUM: '555-0101',
+      UPDATE_IDENT: 0
+    }
   ];
 
   for (const todo of todos) {
