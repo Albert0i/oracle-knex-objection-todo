@@ -16,10 +16,12 @@ export default {
     },
     migrations: {
       directory: './migrations',
-      tableName: 'knex_migrations'
+      tableName: '__knex_migrations',
+      stub: './stubs/migration.stub'
     },
     seeds: {
-      directory: './seeds'
+      directory: './seeds',
+      stub: './stubs/seed.stub'
     }
   },
   /**
