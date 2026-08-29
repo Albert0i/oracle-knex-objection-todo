@@ -1,4 +1,4 @@
-import knex from './db.js';
+import db from './db.js';
 import Todo from './models/Todo.js';
 
 async function run() {
@@ -10,7 +10,7 @@ async function run() {
   } catch (err) {
     console.error(err);
   } finally {
-    await knex.destroy();   // closes Oracle connections
+    await db.destroy();   // closes Oracle connections
   }
 }
 

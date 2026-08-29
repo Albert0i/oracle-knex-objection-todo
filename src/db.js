@@ -1,12 +1,15 @@
-import Knex from 'knex';
+/**
+ * db.js
+ */
+import knex from 'knex';
 import { Model } from 'objection';
-import knexConfig from '../knexfile.js';
+import config from '../knexfile.js';
 
-// Verify what’s being imported
-//console.log('knexConfig =', knexConfig); 
-// should show { development: { client: 'oracledb', connection: {...} } }
+// Select the environment (development, production, etc.)
+const environment = process.env.NODE_ENV || 'development';
+// console.log('Environment =', config[environment])
+const db = knex(config[environment]);
 
-const knex = Knex(knexConfig.development);
-Model.knex(knex);
+Model.knex(db);
 
-export default knex;
+export default db;

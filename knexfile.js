@@ -4,19 +4,34 @@
 import 'dotenv/config'; 
 
 export default {
+  /**
+   * Development
+   */
   development: {
     client: 'oracledb',
     connection: {
-      user: process.env.ORACLE_USERNAME,
-      password: process.env.ORACLE_PASSWORD,
-      connectString: process.env.ORACLE_CONNECTION_STRING
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      connectString: process.env.DB_CONNECTION_STRING
     },
-    pool: { min: 2, max: 10 },   // merged from ./src version
     migrations: {
-      directory: './migrations'
+      directory: './migrations',
+      tableName: 'knex_migrations'
     },
     seeds: {
       directory: './seeds'
     }
+  },
+  /**
+   * Production
+   */
+  production: {
+    client: 'oracledb',
+    connection: {
+      user: process.env.PRODUCTION_DB_USER,
+      password: process.env.PRODUCTION_DB_PASSWORD,
+      connectString: process.env.PRODUCTION_DB_CONNECTION_STRING
+    },
+    pool: { min: 2, max: 10 }
   }
 };
