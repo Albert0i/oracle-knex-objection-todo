@@ -35,9 +35,9 @@ export async function up(knex) {
   //         BEFORE UPDATE ON TODO_LIST
   //         FOR EACH ROW
   //         BEGIN
-  //             :NEW.UPDATED_AT  := CURRENT_TIMESTAMP;
+  //             :NEW.UPDATED_AT   := CURRENT_TIMESTAMP;
   //             :NEW.UPDATE_IDENT := :OLD.UPDATE_IDENT + 1;
-  //         END;
+  //         END
   //       `)
 }
 
@@ -53,11 +53,14 @@ export async function down(knex) {
     table.dropColumn('UPDATED_AT');
     table.dropColumn('UPDATE_IDENT');
 
-    //await knex.raw('DROP TRIGGER TRG_TODO_LIST_UPDATED_AT')
+    // await knex.raw('DROP TRIGGER TRG_TODO_LIST_UPDATED_AT')
   });
 }
 
 /*
    Knex.js Migrations
    https://knexjs.org/guide/migrations.html
+
+   Knex.js Raw 
+   https://knexjs.org/guide/raw.html
 */
