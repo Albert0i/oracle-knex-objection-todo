@@ -11,7 +11,7 @@ async function run() {
     console.log(counts1);
 
     console.log('Option 2: Use Knex directly')
-    const counts2 = await knex('TODO_LIST')
+    const counts2 = await db('TODO_LIST')
           .select('STATUS')
           .count('* as count')
           .groupBy('STATUS');
