@@ -1,0 +1,58 @@
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex) {
+  // 1. Custom Logic: Run extra Oracle-native SQL commands to change properties
+  await knex.raw('ALTER TABLE todo_list MODIFY (status INVISIBLE, created_at INVISIBLE)');
+
+  await knex.schema.alterTable('TODO_LIST', (table) => {
+    // 1. LOCATION VARCHAR2(255) (Nullable by default)
+    table.string('LOCATION', 255);
+
+    // 2. TELNUM VARCHAR2(20)
+    table.string('TELNUM', 20);
+  });
+
+  // 2. Custom Logic: Run extra Oracle-native SQL commands to change properties
+  await knex.raw('ALTER TABLE todo_list MODIFY (status VISIBLE)');
+
+  await knex.schema.alterTable('TODO_LIST', (table) => {
+    // 3. UPDATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    // knex.fn.now() generates the correct native CURRENT_TIMESTAMP syntax for Oracle
+    table.timestamp('UPDATED_AT');
+  });
+
+  // 2. Custom Logic: Run extra Oracle-native SQL commands to change properties
+  await knex.raw('ALTER TABLE todo_list MODIFY (created_at VISIBLE)');
+
+  await knex.schema.alterTable('TODO_LIST', (table) => {
+    // 4. UPDATE_IDENT NUMBER (Useful for versioning or tracking user IDs)
+    table.integer('UPDATE_IDENT');
+  });
+}
+/* export async function up(knex) {
+  return knex.schema.alterTable('TODO_LIST', (table) => {
+    // 1. LOCATION VARCHAR2(255) (Nullable by default)
+    table.string('LOCATION', 255);
+
+    // 2. TELNUM VARCHAR2(20)
+    table.string('TELNUM', 20);
+
+    // 3. UPDATE_IDENT NUMBER (Useful for versioning or tracking user IDs)
+    table.integer('UPDATE_IDENT');
+  });
+} */
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex) {
+  return knex.schema.alterTable('TODO_LIST', (table) => {
+    // Rollback mechanism: drop the newly added columns if we undo this migration
+    table.dropColumn('LOCATION');
+    table.dropColumn('TELNUM');
+    table.dropColumn('UPDATE_IDENT');
+  });
+}
