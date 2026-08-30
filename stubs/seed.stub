@@ -26,3 +26,8 @@ export async function seed(knex) {
     await knex('TODO_LIST').insert(todo);
   }
 }
+
+/*
+   Knex.js Migrations
+   https://knexjs.org/guide/migrations.html#seed-cli
+*/
