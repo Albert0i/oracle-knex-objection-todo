@@ -30,15 +30,20 @@ export async function up(knex) {
     table.integer('UPDATE_IDENT').defaultTo(0).comment('@@UPID');;
   });
 
-  // await knex.raw(`
-  //         CREATE OR REPLACE TRIGGER TRG_TODO_LIST_UPDATED_AT
-  //         BEFORE UPDATE ON TODO_LIST
-  //         FOR EACH ROW
-  //         BEGIN
-  //             :NEW.UPDATED_AT   := CURRENT_TIMESTAMP;
-  //             :NEW.UPDATE_IDENT := :OLD.UPDATE_IDENT + 1;
-  //         END
-  //       `)
+  // Wrap the CREATE TRIGGER inside an anonymous Oracle block to bypass the ORA-00900 driver lock
+  await knex.raw(`
+    BEGIN
+      EXECUTE IMMEDIATE '
+        CREATE OR REPLACE TRIGGER TRG_TODO_LIST_UPDATED_AT
+        BEFORE UPDATE ON TODO_LIST
+        FOR EACH ROW
+        BEGIN
+            :NEW.UPDATED_AT   := CURRENT_TIMESTAMP;
+            :NEW.UPDATE_IDENT := NVL(:OLD.UPDATE_IDENT, 0) + 1;
+        END;
+      ';
+    END;
+  `);
 }
 
 /**
@@ -46,15 +51,26 @@ export async function up(knex) {
  * @returns { Promise<void> }
  */
 export async function down(knex) {
-  return knex.schema.alterTable('TODO_LIST', (table) => {
+  await knex.schema.alterTable('TODO_LIST', (table) => {
     // Rollback mechanism: drop the newly added columns if we undo this migration
     table.dropColumn('LOCATION');
     table.dropColumn('TELNUM');
     table.dropColumn('UPDATED_AT');
     table.dropColumn('UPDATE_IDENT');
-
-    // await knex.raw('DROP TRIGGER TRG_TODO_LIST_UPDATED_AT')
   });
+
+  // Wrap the DROP TRIGGER in an anonymous PL/SQL block with an exception handler
+  await knex.raw(`
+    BEGIN
+      EXECUTE IMMEDIATE 'DROP TRIGGER TRG_TODO_LIST_UPDATED_AT';
+    EXCEPTION
+    WHEN OTHERS THEN
+      -- If the trigger does not exist (ORA-04043), ignore it and exit cleanly
+      IF SQLCODE != -4043 THEN
+        RAISE;
+      END IF;
+    END;
+  `);
 }
 
 /*
@@ -63,4 +79,17 @@ export async function down(knex) {
 
    Knex.js Raw 
    https://knexjs.org/guide/raw.html
+
+  ```
+  CREATE OR REPLACE TRIGGER TRG_TODO_LIST_UPDATED_AT
+  BEFORE UPDATE ON TODO_LIST
+  FOR EACH ROW
+  BEGIN
+      :NEW.UPDATED_AT  := CURRENT_TIMESTAMP;
+      :NEW.UPDATE_IDENT := :OLD.UPDATE_IDENT + 1;
+  END;
+  ```
+  ```
+  DROP TRIGGER TRG_TODO_LIST_UPDATED_AT
+  ```
 */
