@@ -6,7 +6,7 @@ async function run() {
 
   try {
     console.log('Mark a task as completed')
-    await Todo.query().findById(id).patch({ status: 'COMPLETED' });
+    await Todo.query().findById(id).patch({ status: 'COMPLETED' }) ;
   } catch (err) {
     console.error(err);
   } finally {
