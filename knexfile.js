@@ -22,7 +22,8 @@ export default {
     seeds: {
       directory: './seeds',
       stub: './stubs/seed.stub'
-    }
+    },
+    debug: true // 👈 log SQL to the console.
   },
   /**
    * Production
