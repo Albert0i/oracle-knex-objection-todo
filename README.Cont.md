@@ -28,7 +28,43 @@ A lightweight abstration layer can be used to provide a consistent interface for
 #### [Knex.js](https://knexjs.org/)
 > Knex.js is a batteries-included SQL query builder for JavaScript.
 
-**Knex.js** (pronounced [/kəˈnɛks/](https://youtu.be/19Av0Lxml-I?t=521)) is a "batteries included" SQL query builder for **PostgreSQL**, **CockroachDB**, **MSSQL**, **MySQL**, **MariaDB**, **SQLite3**, **Better-SQLite3**, **Oracle**, and **Amazon Redshift** designed to be flexible, portable, and fun to use.
+> **Knex.js** (pronounced [/kəˈnɛks/](https://youtu.be/19Av0Lxml-I?t=521)) is a "batteries included" SQL query builder for **PostgreSQL**, **CockroachDB**, **MSSQL**, **MySQL**, **MariaDB**, **SQLite3**, **Better-SQLite3**, **Oracle**, and **Amazon Redshift** designed to be flexible, portable, and fun to use.
+
+To begin with: 
+```
+npm install knex oracledb
+```
+
+Create a file named `knexfile.js`:
+```
+import 'dotenv/config'; 
+
+export default {
+  /**
+   * Development
+   */
+  development: {
+    client: 'oracledb',
+    connection: {
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      connectString: process.env.DB_CONNECTION_STRING
+    },
+    migrations: {
+      directory: './migrations',
+      tableName: 'knex_migrations',
+      stub: './stubs/migration.stub'
+    },
+    seeds: {
+      directory: './seeds',
+      stub: './stubs/seed.stub'
+    },
+    debug: false,              // log SQL queries to console
+    asyncStackTraces: false,   // show full async stack traces on errors
+    fetchAsString: [ 'DATE', 'NUMBER' ], // return DATE/NUMBER columns as strings
+  }  
+};
+```
 
 
 ####
