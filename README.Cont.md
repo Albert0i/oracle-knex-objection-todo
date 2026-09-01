@@ -256,6 +256,14 @@ END;
 ALTER TRIGGER "todo_list_autoinc_trg" ENABLE;
 ```
 
+```
+SELECT "id", "name", "batch", "migration_time" 
+FROM "knex_migrations";
+
+2	20260901091054_add_location_tel_to_todo_list.js	2	2026-09-01 17:13:29.553
+22	20260901083703_create_todo_list.js	1	2026-09-01 16:45:38.087
+```
+
 ####
 ####
 ####
