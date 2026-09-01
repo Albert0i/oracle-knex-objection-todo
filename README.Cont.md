@@ -65,6 +65,129 @@ export default {
 
 > Migrations allow for you to define sets of schema changes so upgrading a database is a breeze.
 
+```
+npx knex migrate:list
+npx knex migrate:make create_todo_list
+npx knex migrate:list
+```
+
+![alt npx-knex-migrate-make](img/npx-knex-migrate-make.JPG)
+
+By default, knex created two tables, one sequence and one trigger on the same schema to keep track of migrations: 
+
+```
+-- "knex_migrations" definition
+CREATE TABLE "knex_migrations" 
+(	"id"    NUMBER(*,0) NOT NULL, 
+  "name"  VARCHAR2(255), 
+  "batch" NUMBER(*,0), 
+  "migration_time" TIMESTAMP (6) WITH LOCAL TIME ZONE, 
+
+  PRIMARY KEY ("id")
+);
+
+-- "knex_migrations_lock" definition
+CREATE TABLE "knex_migrations_lock" 
+(	"index"     NUMBER(*,0) NOT NULL ENABLE, 
+	"is_locked" NUMBER(*,0), 
+
+	 PRIMARY KEY ("index")
+);
+
+-- Sequence to generate unique values for knex_migrations_lock
+CREATE SEQUENCE "knex_migrations_lock_seq"
+  INCREMENT BY 1                 -- Each NEXTVAL increases by 1
+  MINVALUE 1                     -- Lowest possible value
+  MAXVALUE 9999999999999999999999999999  -- Upper bound (very large)
+  NOCYCLE                        -- Sequence will not restart after reaching MAXVALUE
+  CACHE 20                       -- Pre-allocate 20 values in memory for faster access
+  NOORDER;                       -- Values are not guaranteed to be in request order
+
+-- Trigger to auto-generate a unique "index" value for each row in knex_migrations_lock
+CREATE OR REPLACE TRIGGER "knex_migrations_lock_autoinc_trg"
+BEFORE INSERT ON "knex_migrations_lock"   -- Fires before every insert on the lock table
+FOR EACH ROW
+DECLARE
+  checking NUMBER := 1;                   -- Variable used to check uniqueness of the generated value
+BEGIN
+  -- Only assign a value if "index" was not provided in the insert
+  IF (:new."index" IS NULL) THEN
+    -- Loop until a unique sequence value is found
+    WHILE checking >= 1 LOOP
+      -- Get the next value from the sequence and assign it to the new row
+      SELECT "knex_migrations_lock_seq".NEXTVAL
+      INTO :new."index"
+      FROM dual;
+
+      -- Check if this value already exists in the table
+      SELECT COUNT("index")
+      INTO checking
+      FROM "knex_migrations_lock"
+      WHERE "index" = :new."index";
+    END LOOP;
+  END IF;
+END;
+```
+
+Ok, let's back the migration... As you can see there is a `20260901083703_create_todo_list.js` file create on `./migration` folder:  
+
+```
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex) {
+  // TODO: Define schema changes here
+  // Example: createTable, alterTable, addColumn, etc.
+  // e.g. await knex.schema.createTable('SAMPLE_TABLE', table => { ... });
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex) {
+  // TODO: Define how to undo the changes from `up`
+  // Example: dropTable, dropColumn, etc.
+  // e.g. await knex.schema.dropTable('SAMPLE_TABLE');
+}
+```
+
+Go ahead to write two functions like so: 
+
+```
+export async function up(knex) {
+  await knex.schema.createTable('TODO_LIST', (table) => {
+    table.increments('ID').primary();
+    table.string('TITLE', 255).notNullable();
+    table.string('STATUS', 50).notNullable();
+    table.timestamp('CREATED_AT').defaultTo(knex.fn.now());
+  });
+}
+
+export async function down(knex) {
+  await knex.schema.dropTable('TODO_LIST');
+}
+```
+
+Run the migration: 
+
+```
+npx knex migrate:latest 
+  or 
+npx knex migrate:up 20260901083703_create_todo_list.js 
+```
+
+To rollback the migration: 
+```
+npx knex migrate:rollback
+  or 
+npx knex migrate:down 20260901083703_create_todo_list.js
+```
+
+![alt migrate and rollback](img/npx-knex-migrate-latest-rollback.JPG)
+
+![alt up and down](img/npx-knex-migrate-up-down.JPG)
 
 
 ####
