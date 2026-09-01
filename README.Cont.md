@@ -35,7 +35,7 @@ To begin with:
 npm install knex oracledb
 ```
 
-Create a file named `knexfile.js`:
+Create a file named `knexfile.js` in `./`:
 ```
 import 'dotenv/config'; 
 
@@ -66,6 +66,18 @@ export default {
 };
 ```
 
+Then create `./src/db.js` to initialize Knex:
+```
+import knex from 'knex';
+import config from '../knexfile.js';
+
+// Select the environment (development, production, etc.)
+const environment = process.env.NODE_ENV || 'development';
+
+const db = knex(config[environment]);
+
+export default db;
+```
 
 ####
 ####
