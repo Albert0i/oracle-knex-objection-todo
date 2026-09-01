@@ -189,6 +189,8 @@ npx knex migrate:down 20260901083703_create_todo_list.js
 
 ![alt up and down](img/npx-knex-migrate-up-down.JPG)
 
+![alt migrate list](img/npx-knex-migrate-list.JPG)
+
 
 ####
 ####
