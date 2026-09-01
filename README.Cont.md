@@ -191,6 +191,70 @@ npx knex migrate:down 20260901083703_create_todo_list.js
 
 ![alt migrate list](img/npx-knex-migrate-list.JPG)
 
+```
+SELECT "id", "name", "batch", "migration_time" 
+FROM "knex_migrations";
+
+22	20260901083703_create_todo_list.js	1	2026-09-01 16:45:38.087
+```
+
+Adding New Columns: 
+
+```
+npm run migrate:make add_location_tel_to_todo_list
+```
+
+`20260901091054_add_location_tel_to_todo_list.js`
+```
+export async function up(knex) {
+  await knex.schema.alterTable('TODO_LIST', (table) => {
+    table.string('LOCATION', 100);
+    table.string('TEL', 20);
+  });
+}
+
+export async function down(knex) {
+  await knex.schema.alterTable('TODO_LIST', (table) => {
+    table.dropColumn('LOCATION');
+    table.dropColumn('TEL');
+  });
+}
+```
+
+![alt migrate list](img/npx-knex-migrate-list-2.JPG)
+
+```
+CREATE TABLE "TODO_LIST" 
+(
+  "ID"          NUMBER NOT NULL,
+  "TITLE"       VARCHAR2(255) NOT NULL,
+  "STATUS"      VARCHAR2(50) NOT NULL,
+  "CREATED_AT"  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "LOCATION"    VARCHAR2(100),
+  "TEL"         VARCHAR2(20),
+
+  CONSTRAINT todo_list_pk PRIMARY KEY ("ID")
+);
+
+CREATE SEQUENCE "todo_list_seq"
+  START WITH 1
+  INCREMENT BY 1
+  NOCACHE
+  NOCYCLE;
+
+CREATE OR REPLACE TRIGGER "todo_list_autoinc_trg"
+BEFORE INSERT ON "TODO_LIST"
+FOR EACH ROW
+BEGIN
+  IF :new."ID" IS NULL THEN
+    SELECT "todo_list_seq".NEXTVAL
+    INTO :new."ID"
+    FROM dual;
+  END IF;
+END;
+
+ALTER TRIGGER "todo_list_autoinc_trg" ENABLE;
+```
 
 ####
 ####
