@@ -1,26 +1,46 @@
 /**
- * @param { import("knex").Knex } knex
+ * Example migration stub
+ *
+ * @param { import("knex").Knex } knex - The Knex instance connected to your DB
  * @returns { Promise<void> }
  */
 export async function up(knex) {
-  await knex.schema.createTable('TODO_LIST', table => {
-    table.increments('ID').primary();
-    table.string('TITLE', 100).notNullable();
-    table.string('STATUS', 20).defaultTo('PENDING');
-    table.timestamp('CREATED_AT').defaultTo(knex.fn.now());
-  });
+  // This function defines the "forward" migration.
+  // Place schema changes here, such as:
+  //   - Creating new tables
+  //   - Adding new columns to existing tables
+  //   - Creating indexes or constraints
+  //
+  // Example (replace with your own schema):
+  // await knex.schema.createTable('SAMPLE_TABLE', table => {
+  //   table.increments('id').primary();       // Auto-incrementing PK
+  //   table.string('name', 255).notNullable(); // Text column with max length
+  //   table.boolean('active').defaultTo(true); // Boolean with default value
+  //   table.timestamp('created_at').defaultTo(knex.fn.now()); // Timestamp
+  // });
+  //
+  // Keep this section empty until you know the exact schema changes you want.
 }
 
 /**
- * @param { import("knex").Knex } knex
+ * @param { import("knex").Knex } knex - The Knex instance connected to your DB
  * @returns { Promise<void> }
  */
 export async function down(knex) {
-  await knex.schema.dropTable('TODO_LIST');
+  // This function defines the "rollback" migration.
+  // Place undo logic here, such as:
+  //   - Dropping tables created in `up`
+  //   - Removing columns added in `up`
+  //   - Dropping indexes or constraints
+  //
+  // Example (to undo the SAMPLE_TABLE above):
+  // await knex.schema.dropTable('SAMPLE_TABLE');
+  //
+  // Always make sure `down` cleanly reverses what `up` did,
+  // so you can migrate forward and backward safely.
 }
 
 /*
    Knex.js Migrations
    https://knexjs.org/guide/migrations.html
 */
-

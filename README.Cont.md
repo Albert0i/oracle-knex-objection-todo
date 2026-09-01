@@ -30,9 +30,9 @@ A lightweight abstration layer can be used to provide a consistent interface for
 
 > **Knex.js** (pronounced [/kəˈnɛks/](https://youtu.be/19Av0Lxml-I?t=521)) is a "batteries included" SQL query builder for **PostgreSQL**, **CockroachDB**, **MSSQL**, **MySQL**, **MariaDB**, **SQLite3**, **Better-SQLite3**, **Oracle**, and **Amazon Redshift** designed to be flexible, portable, and fun to use.
 
-To begin with: 
+To begin with, run `npm init -y` and change `"type": "module"` in `package.json` and then: 
 ```
-npm install knex oracledb
+npm install knex oracledb dotenv
 ```
 
 Create a file named `knexfile.js` in `./`:
@@ -40,9 +40,6 @@ Create a file named `knexfile.js` in `./`:
 import 'dotenv/config'; 
 
 export default {
-  /**
-   * Development
-   */
   development: {
     client: 'oracledb',
     connection: {
@@ -66,18 +63,9 @@ export default {
 };
 ```
 
-Then create `./src/db.js` to initialize Knex:
-```
-import knex from 'knex';
-import config from '../knexfile.js';
+> Migrations allow for you to define sets of schema changes so upgrading a database is a breeze.
 
-// Select the environment (development, production, etc.)
-const environment = process.env.NODE_ENV || 'development';
 
-const db = knex(config[environment]);
-
-export default db;
-```
 
 ####
 ####

@@ -1,33 +1,48 @@
 /**
- * @param { import("knex").Knex } knex
+ * Example seed stub
+ *
+ * @param { import("knex").Knex } knex - The Knex instance connected to your DB
  * @returns { Promise<void> }
  */
 export async function seed(knex) {
-  // Deletes ALL existing entries
-  await knex('TODO_LIST').del();
-  
-  // Inserts seed entries
-  const todos = [
-    { TITLE: 'Fix the quantum interference device broken by Stuart Bloom', STATUS: 'PENDING' },
-    { TITLE: 'Escape the repressive AI on the idyllic version of Earth', STATUS: 'PENDING' },
-    { TITLE: 'Enlist a powerful wizard to help Bert find a sorcery gift', STATUS: 'PENDING' },
-    { TITLE: 'Survive the post-apocalyptic Pasadena and avoid giant moths', STATUS: 'PENDING' },
-    { TITLE: 'Barter canned vegetables and cat food for rare comic books', STATUS: 'PENDING' },
-    { TITLE: 'Overthrow military dictator Barry Kripke in alternate reality', STATUS: 'PENDING' },
-    { TITLE: 'Locate Denise after she mysteriously disappears in the multiverse', STATUS: 'PENDING' },
-    { TITLE: 'Convince doctors in the mental institution that the multiverse is real', STATUS: 'PENDING' },
-    { TITLE: 'Break out of the Matrix pods before reality resets again', STATUS: 'PENDING' },
-    { TITLE: 'Undo the multiverse Armageddon accidentally unleashed by the gang', STATUS: 'PENDING' },
-    { TITLE: 'Help Gary secure his new job working for UPS', STATUS: 'PENDING' },
-    { TITLE: 'Find the original universe where Leonard and Sheldon live', STATUS: 'PENDING' }
-  ];
+  // STEP 1: Clear existing data
+  // -----------------------------------
+  // Typically you start by deleting rows from the target table
+  // so that seeding always produces a consistent dataset.
+  // Use caution: this will wipe ALL rows in the table.
+  //
+  // Example:
+  // await knex('SAMPLE_TABLE').del();
 
-  for (const todo of todos) {
-    await knex('TODO_LIST').insert(todo);
-  }
+  // STEP 2: Define seed data
+  // -----------------------------------
+  // Create an array of objects representing rows you want to insert.
+  // Each object should match the column names of your table.
+  //
+  // Example:
+  // const sampleData = [
+  //   { name: 'Alice', status: 'ACTIVE' },
+  //   { name: 'Bob', status: 'INACTIVE' },
+  //   { name: 'Charlie', status: 'ACTIVE' }
+  // ];
+
+  // STEP 3: Insert seed data
+  // -----------------------------------
+  // Insert the array into the table. For Oracle, you may need to
+  // insert rows one by one instead of batch insert.
+  //
+  // Example:
+  // for (const row of sampleData) {
+  //   await knex('SAMPLE_TABLE').insert(row);
+  // }
+
+  // NOTE:
+  // - Keep seed data small and simple (for testing/dev environments).
+  // - Use realistic values if you want to simulate production scenarios.
+  // - Seeds are optional; you can skip them if you only need migrations.
 }
 
 /*
-   Knex.js Migrations
+   Knex.js Seeds
    https://knexjs.org/guide/migrations.html#seed-cli
 */
