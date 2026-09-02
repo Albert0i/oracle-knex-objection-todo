@@ -311,7 +311,7 @@ CREATE TABLE todo_list (
 
 ALTER TABLE todo_list ADD location VARCHAR2(100);
 
-ALTER TABLE todo_list ADD tel VARCHAR2(20);
+ALTER TABLE todo_list ADD telnum VARCHAR2(20);
 ```
 
 Please note that files in `./migrations` folder have to be aligned with `knex_migrations` otherwise you may be greeted with a "migration corrupt" message. 
@@ -338,26 +338,49 @@ npx knex migrate:rollback --all
 
 ![alt migrate rollback all](img/npx-knex-migrate-rollbackup-all.JPG)
 
-This effectively remove table, sequence and trigger for TODO_LIST. And this pretty much conclude our discussion on schema migration using **Code-First** approach on `Knex.js`. 
+This effectively remove table, sequence and trigger for `TODO_LIST`. And this pretty much conclude our discussion on schema migration using **Code-First** approach on `Knex.js`. 
 
 > Seed files allow you to populate your database with test or seed data independent of your migration files.
 
-To begin with seeding our TODO_LIST: 
+To begin with seeding our `TODO_LIST`: 
+
 ```
 npx knex seed:make seed_todos
 ```
 
+This create a `seed_todos.js` in `./seeds` folder like so: 
 
-Table
-knex_migrations
-knex_migrations_lock
+```
+export async function seed(knex) {
+  await knex('SAMPLE_TABLE').del();
 
-Sequence
-knex_migrations_lock_seq
+  const sampleData = [
+    { name: 'Alice', status: 'ACTIVE' },
+    { name: 'Bob', status: 'INACTIVE' },
+    { name: 'Charlie', status: 'ACTIVE' }
+  ];
 
-TABLE TRIGGER 
-knex_migrations_lock_autoinc_trg
+  for (const row of sampleData) {
+    await knex('SAMPLE_TABLE').insert(row);
+  }
+}
+```
 
+Change it to match your `TODO_LIST` table and run with: 
+
+```
+npx seed:run
+```
+
+> Seed files are executed in alphabetical order. Unlike migrations, every seed file will be executed when you run the command. You should design your seed files to reset tables as needed before inserting data.
+
+> To run specific seed files, execute:
+
+```
+npx knex seed:run --specific=seed-filename.js --specific=another-seed-filename.js 
+```
+
+Seeding a database is simplier than migration and there is no `rollback` or `unseed` and whatsoever. Any table on database no matter how you created them can be seeded provided you match all columns requirements. 
 
 ####
 ####
