@@ -519,6 +519,44 @@ CREATE INDEX "CUSTOMERS_POSTALCODE" ON "CUSTOMERS" ("POSTALCODE");
 CREATE INDEX "CUSTOMERS_REGION" ON "CUSTOMERS" ("REGION");
 ```
 
+Then create `db.js` to initialize Knex and Objection:
+```
+import knex from 'knex';
+import { Model } from 'objection';
+import config from '../knexfile.js';
+
+// Select the environment (development, production, etc.)
+const environment = process.env.NODE_ENV || 'development';
+
+const db = knex(config[environment]);
+
+Model.knex(db);
+
+export default db;
+```
+
+`testConn.js` 
+```
+import db from './db.js';
+
+async function testConnection() {
+  try {
+    // Run a simple query to confirm Oracle connectivity
+    const result = await db.raw('SELECT banner_full FROM v$version');
+    console.log('✅ Connection OK:', result);
+
+  } catch (err) {
+    console.error('❌ Connection failed:', err);
+  } finally {
+    // Always close the pool
+    await db.destroy();
+  }
+}
+
+testConnection();
+```
+
+![alt test connection](img/testConn.JPG)
 
 
 

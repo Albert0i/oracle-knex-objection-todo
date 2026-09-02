@@ -6,7 +6,7 @@ import db from './db.js';
 async function testConnection() {
   try {
     // Run a simple query to confirm Oracle connectivity
-    const result = await db.raw('SELECT banner FROM v$version WHERE ROWNUM = 1');
+    const result = await db.raw('SELECT banner_full FROM v$version');
     console.log('✅ Connection OK:', result);
 
   } catch (err) {
