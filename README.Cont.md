@@ -390,6 +390,138 @@ Seeding a database is simplier than migration and there is no `rollback` or `uns
 
 > Objection.js is built on an SQL query builder called [knex](http://knexjs.org/). All databases supported by knex are supported by objection.js. SQLite3, Postgres and MySQL are thoroughly tested (opens new window).
 
+Create `models/Todo.js`:
+
+```
+import { Model } from 'objection';
+
+class Todo extends Model {
+  static get tableName() {
+    return 'TODO_LIST';
+  }
+
+  static get idColumn() {
+    return 'ID';
+  }
+
+  static get jsonSchema() {
+    return {
+      type: 'object',
+      required: ['title'],
+      properties: {
+        id: { type: 'integer' },
+        title: { type: 'string', maxLength: 100 },
+        status: { type: 'string', enum: ['PENDING', 'COMPLETED'] },
+        created_at: { type: 'string' }
+      }
+    };
+  }
+}
+
+export default Todo;
+```
+
+`models/Customer.js`
+```
+import { Model } from 'objection';
+
+class Customer extends Model {
+  static get tableName() {
+    return 'CUSTOMERS';
+  }
+
+  static get idColumn() {
+    return 'CUSTOMERID';
+  }
+
+  static get jsonSchema() {
+    return {
+      type: 'object',
+      required: ['customerId', 'companyName'],
+      properties: {
+        customerId: { type: 'string', maxLength: 5 },
+        companyName: { type: 'string', maxLength: 40 },
+        contactName: { type: 'string', maxLength: 30 },
+        contactTitle: { type: 'string', maxLength: 30 },
+        address: { type: 'string', maxLength: 60 },
+        city: { type: 'string', maxLength: 30 },
+        region: { type: 'string', maxLength: 15 },
+        postalCode: { type: 'string', maxLength: 10 },
+        country: { type: 'string', maxLength: 15 },
+        phone: { type: 'string', maxLength: 24 },
+        fax: { type: 'string', maxLength: 24 }
+      }
+    };
+  }
+
+  static get columnNameMappers() {
+    return {
+      parse(obj) {
+        return {
+          customerId: obj.CUSTOMERID,
+          companyName: obj.COMPANYNAME,
+          contactName: obj.CONTACTNAME,
+          contactTitle: obj.CONTACTTITLE,
+          address: obj.ADDRESS,
+          city: obj.CITY,
+          region: obj.REGION,
+          postalCode: obj.POSTALCODE,
+          country: obj.COUNTRY,
+          phone: obj.PHONE,
+          fax: obj.FAX
+        };
+      },
+      format(obj) {
+        return {
+          CUSTOMERID: obj.customerId,
+          COMPANYNAME: obj.companyName,
+          CONTACTNAME: obj.contactName,
+          CONTACTTITLE: obj.contactTitle,
+          ADDRESS: obj.address,
+          CITY: obj.city,
+          REGION: obj.region,
+          POSTALCODE: obj.postalCode,
+          COUNTRY: obj.country,
+          PHONE: obj.phone,
+          FAX: obj.fax
+        };
+      }
+    };
+  }
+}
+
+export default Customer;
+```
+
+For `Customers` table: 
+```
+-- CUSTOMERS definition
+CREATE TABLE "CUSTOMERS" (
+  "CUSTOMERID"   VARCHAR2(5)  NOT NULL,
+  "COMPANYNAME"  VARCHAR2(40) NOT NULL,
+  "CONTACTNAME"  VARCHAR2(30),
+  "CONTACTTITLE" VARCHAR2(30),
+  "ADDRESS"      VARCHAR2(60),
+  "CITY"         VARCHAR2(30),
+  "REGION"       VARCHAR2(15),
+  "POSTALCODE"   VARCHAR2(10),
+  "COUNTRY"      VARCHAR2(15),
+  "PHONE"        VARCHAR2(24),
+  "FAX"          VARCHAR2(24),
+  CONSTRAINT customers_pk PRIMARY KEY ("CUSTOMERID")
+);
+
+CREATE UNIQUE INDEX "CUSTOMERS_PK" ON "CUSTOMERS" ("CUSTOMERID");
+
+CREATE INDEX "CUSTOMERS_CITY" ON "CUSTOMERS" ("CITY");
+CREATE INDEX "CUSTOMERS_COMPANYNAME" ON "CUSTOMERS" ("COMPANYNAME");
+CREATE INDEX "CUSTOMERS_POSTALCODE" ON "CUSTOMERS" ("POSTALCODE");
+CREATE INDEX "CUSTOMERS_REGION" ON "CUSTOMERS" ("REGION");
+```
+
+
+
+
 
 ####
 

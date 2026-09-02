@@ -1,7 +1,7 @@
 /**
  * Todos.js
  */
-import { Model, knexSnakeCaseMappers } from 'objection';
+import { Model } from 'objection';
 
 class Todo extends Model {
   static get tableName() {
