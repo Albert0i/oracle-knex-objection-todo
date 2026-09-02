@@ -2,7 +2,7 @@ import db from './db.js';
 import Todo from './models/Todo.js';
 
 async function run() {
-  const id = 120; 
+  const id = 10; 
 
   try {
     console.log('Mark a task as completed')
