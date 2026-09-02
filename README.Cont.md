@@ -557,7 +557,13 @@ testConnection();
 
 ![alt test connection](img/testConn.JPG)
 
-> Sometimes you may need to use a raw expression in a query. [Raw](https://knexjs.org/guide/raw.html) query object may be injected pretty much anywhere you want, and using proper bindings can ensure your values are escaped properly, preventing SQL-injection attacks.
+- [Knex Query Builder](https://knexjs.org/guide/query-builder.html)
+
+> The heart of the library, the knex query builder is the interface used for building and executing standard SQL queries, such as `select`, `insert`, `update`, `delete`.
+
+- [Raw](https://knexjs.org/guide/raw.html)
+
+> Sometimes you may need to use a raw expression in a query. Raw query object may be injected pretty much anywhere you want, and using proper bindings can ensure your values are escaped properly, preventing SQL-injection attacks.
 
 
 #### Bibliography 
