@@ -382,18 +382,17 @@ npx knex seed:run --specific=seed-filename.js --specific=another-seed-filename.j
 
 Seeding a database is simplier than migration and there is no `rollback` or `unseed` and whatsoever. Any table on database no matter how you created them can be seeded provided you match all columns requirements. 
 
-####
-####
-####
-####
-####
-####
-####
-####
-####
+
+#### [Objection.js](https://vincit.github.io/objection.js/)
+> Objection.js is an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) for [Node.js](https://nodejs.org/) that aims to stay out of your way and make it as easy as possible to use the full power of SQL and the underlying database engine while still making the common stuff easy and enjoyable.
+
+> Even though ORM is the best commonly known acronym to describe objection, a more accurate description is to call it a **relational query builder**. You get all the benefits of an SQL query builder but also a powerful set of tools for working with relations.
+
+> Objection.js is built on an SQL query builder called [knex](http://knexjs.org/). All databases supported by knex are supported by objection.js. SQLite3, Postgres and MySQL are thoroughly tested (opens new window).
+
+
 ####
 
-[Code-First vs Database-First: Which Approach Should You Use in 2025?](https://strapi.io/blog/code-first-vs-database-first)
 
 #### Epilogue 
 
