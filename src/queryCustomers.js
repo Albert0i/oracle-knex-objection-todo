@@ -47,6 +47,7 @@ async function run() {
       .groupBy('COUNTRY')
       .orderBy('count', 'desc')
       .limit(5);
+    console.log('topCountries =', topCountries);
 
   } catch (err) {
     console.error(err);
