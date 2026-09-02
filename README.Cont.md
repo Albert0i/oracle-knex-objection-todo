@@ -1,14 +1,11 @@
 ### Tutorial: Building an Oracle Todo App with Objection.js + Knex.js
 
-"These are my Confessions, and if in them I say nothing, it’s because I have nothing to say."
-"São as minhas Confissões, e, se nelas nada digo, é que nada tenho que dizer."
-
-"A tedium that includes the expectation of nothing but more tedium; a regret, right now, for the regret I’ll have tomorrow for having felt regret today – huge confusions with no point and no truth, huge confusions…"
-"Um tédio que inclui a antecipação só de mais tédio; a pena, já, de amanhã ter pena de ter tido pena hoje — grandes emaranhamentos sem utilidade nem verdade, grandes emaranhamentos..."
+> "These are my Confessions, and if in them I say nothing, it’s because I have nothing to say."<br /><br />"São as minhas Confissões, e, se nelas nada digo, é que nada tenho que dizer."
+<br/>--- The Book of Disquiet by Fernando Pessoa
 
 
 #### Prologue 
-Honestly, I won't recommend Oracle to anyone, as for ORM, I won't recommend it either. The more I work with ORMs, the more I appreciate the succinctness of [SQL](https://en.wikipedia.org/wiki/SQL) and immense capability. 
+Honestly, I won't recommend Oracle to anyone, as for ORM, I won't recommend it either. For the more I endeavour in ORM, the more I appreciate the succinctness of [SQL](https://en.wikipedia.org/wiki/SQL) and immense join capability. 
 
 
 #### [Code-First vs Database-First](https://strapi.io/blog/code-first-vs-database-first)
@@ -338,7 +335,9 @@ npx knex migrate:rollback --all
 
 ![alt migrate rollback all](img/npx-knex-migrate-rollbackup-all.JPG)
 
-This effectively remove table, sequence and trigger for `TODO_LIST`. And this pretty much conclude our discussion on schema migration using **Code-First** approach on `Knex.js`. 
+This effectively remove table, sequence and trigger for `TODO_LIST`. And this pretty much concludes our discussion on schema migration using **Code-First** approach on `Knex.js`. May it be **Code-First** or **Database-First** is purely a design philosophy, you are the owner of your project after all... 
+
+![alt motto](img/Copilot_20260902_102337.png)
 
 > Seed files allow you to populate your database with test or seed data independent of your migration files.
 
@@ -380,7 +379,7 @@ npx seed:run
 npx knex seed:run --specific=seed-filename.js --specific=another-seed-filename.js 
 ```
 
-Seeding a database is simplier than migration and there is no `rollback` or `unseed` and whatsoever. Any table on database no matter how you created them can be seeded provided you match all columns requirements. 
+Seeding a database is simplier than migration and there is no `rollback` or `unseed` and whatsoever. Any table no matter how you created can be seeded provided columns requirements are matcheed. 
 
 
 #### [Objection.js](https://vincit.github.io/objection.js/)
@@ -558,20 +557,22 @@ testConnection();
 
 ![alt test connection](img/testConn.JPG)
 
+> Sometimes you may need to use a raw expression in a query. [Raw](https://knexjs.org/guide/raw.html) query object may be injected pretty much anywhere you want, and using proper bindings can ensure your values are escaped properly, preventing SQL-injection attacks.
 
 
-
-####
+#### Bibliography 
+1. [Code-First vs Database-First: Which Approach Should You Use in 2025?](https://strapi.io/blog/code-first-vs-database-first)
+2. [Knex.js](https://knexjs.org/)
+3. [Objection.js](https://vincit.github.io/objection.js/)
+4. [oracledb](https://www.npmjs.com/package/oracledb)
+5. [The Book of Disquiet by Fernando Pessoa](doc/The%20Book%20of%20Disquiet%20-%20Fernando%20Pessoa.pdf)
 
 
 #### Epilogue 
 
-![alt motto](img/Copilot_20260902_102337.png)
+> "A tedium that includes the expectation of nothing but more tedium; a regret, right now, for the regret I’ll have tomorrow for having felt regret today – huge confusions with no point and no truth, huge confusions…"
 
-```
-With the wrong decision, every time is bad timing; 
-With the wrong direction, every road is a deadend.
-```
+> "Um tédio que inclui a antecipação só de mais tédio; a pena, já, de amanhã ter pena de ter tido pena hoje — grandes emaranhamentos sem utilidade nem verdade, grandes emaranhamentos..."
 
 
-### EOF (2026/09/xx)
+### EOF (2026/09/18)
