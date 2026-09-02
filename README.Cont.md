@@ -29,7 +29,7 @@ A lightweight abstration layer can be used to provide a consistent interface for
 
 To begin with, run `npm init -y` and change `"type": "module"` in `package.json` and then: 
 ```
-npm install knex oracledb dotenv
+npm install objection knex oracledb dotenv
 ```
 
 Create a file named `knexfile.js` in `./`:
