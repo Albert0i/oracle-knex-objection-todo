@@ -567,7 +567,7 @@ testConnection();
 
 > Sometimes you may need to use a raw expression in a query. Raw query object may be injected pretty much anywhere you want, and using proper bindings can ensure your values are escaped properly, preventing SQL-injection attacks.
 
-Check ![alt query customers](src/queryCustomers.js) for details. 
+Check [alt query customers](src/queryCustomers.js) for details. 
 
 
 #### Bibliography 
