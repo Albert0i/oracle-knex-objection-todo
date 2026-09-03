@@ -579,8 +579,7 @@ Please compare [queryCustomers1.js](src/queryCustomers1.js) and [queryCustomers2
 #### IV. Corollary 
 When working with [MariaDB](https://mariadb.org/) and [SQLite](https://sqlite.org/), I deliberately use [Prisma](https://www.prisma.io/) and it's [Raw queries](https://www.prisma.io/docs/orm/v7/prisma-client/using-raw-sql/raw-queries) as intermediate layer, and introduce ORM only when it is absolutely helpful. 
 
-In the same way, when working with [Oracle](https://www.oracle.com/), [Knex.js](https://knexjs.org/) + [Objection.js](https://vincit.github.io/objection.js/) is chosen because it is the only ORM which works with Oracle and NodeJS.
-
+In the same way, when working with [Oracle](https://www.oracle.com/), [Knex.js](https://knexjs.org/) + [Objection.js](https://vincit.github.io/objection.js/) is chosen because it is the only ORM which works with Oracle and NodeJS. 
 
 
 #### V. Bibliography 
