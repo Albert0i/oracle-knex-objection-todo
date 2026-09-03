@@ -3,6 +3,8 @@
 > "These are my Confessions, and if in them I say nothing, it’s because I have nothing to say."<br /><br />"São as minhas Confissões, e, se nelas nada digo, é que nada tenho que dizer."
 <br/>--- The Book of Disquiet by Fernando Pessoa
 
+![alt Objection.js + Knex.js](img/Copilot_20260825_164654.png)
+
 
 #### Prologue 
 Honestly, I won't recommend Oracle to anyone, as for ORM, I won't recommend it either. For the more I endeavour in ORM, the more I appreciate the succinctness of [SQL](https://en.wikipedia.org/wiki/SQL) and immense join capability. 
@@ -390,6 +392,8 @@ Seeding a database is simplier than migration and there is no `rollback` or `uns
 > Objection.js is built on an SQL query builder called [knex](http://knexjs.org/). All databases supported by knex are supported by objection.js. SQLite3, Postgres and MySQL are thoroughly tested (opens new window).
 
 > To use objection.js all you need to do is [initialize knex](https://knexjs.org/guide/#node-js) and give the created knex instance to objection.js using [Model.knex(knex)](https://vincit.github.io/objection.js/api/model/static-methods.html#static-knex). Doing this installs the knex instance globally for all models (even the ones that have not been created yet). If you need to use multiple databases check out our [multi-tenancy recipe](https://vincit.github.io/objection.js/recipes/multitenancy-using-multiple-databases.html).
+
+![alt Objection.js + Knex.js](img/Copilot_20260825_164654.png)
 
 Create `models/Todo.js`:
 
