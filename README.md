@@ -573,7 +573,7 @@ testConnection();
 
 ![alt test connection](img/testConn.JPG)
 
-Please compare [queryCustomers1.js](src/queryCustomers1.js) and [queryCustomers2.js](src/queryCustomers2.js)for details. 
+Please compare [queryCustomers1.js](src/queryCustomers1.js) and [queryCustomers2.js](src/queryCustomers2.js) for details. 
 
 
 #### IV. Corollary 
