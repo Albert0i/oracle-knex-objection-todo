@@ -393,7 +393,7 @@ Seeding a database is simplier than migration and there is no `rollback` or `uns
 
 > To use objection.js all you need to do is [initialize knex](https://knexjs.org/guide/#node-js) and give the created knex instance to objection.js using [Model.knex(knex)](https://vincit.github.io/objection.js/api/model/static-methods.html#static-knex). Doing this installs the knex instance globally for all models (even the ones that have not been created yet). If you need to use multiple databases check out our [multi-tenancy recipe](https://vincit.github.io/objection.js/recipes/multitenancy-using-multiple-databases.html).
 
-![alt Objection.js + Knex.js](img/Copilot_20260825_164654.png)
+![alt visual workflow diagram](img/Copilot_20260825_165857.png)
 
 Create `models/Todo.js`:
 
