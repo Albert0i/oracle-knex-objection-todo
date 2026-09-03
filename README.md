@@ -7,7 +7,7 @@
 
 
 #### Prologue 
-Honestly, I won't recommend Oracle to anyone, as for ORM, I won't recommend it either. For the more I endeavour in ORM, the more I appreciate the succinctness of [SQL](https://en.wikipedia.org/wiki/SQL) and immense join capability. 
+Honestly, I won't recommend Oracle to anyone, as for ORM, I won't recommend it either. For the more I endeavour in ORM, the more I appreciate the succinctness of [SQL](https://en.wikipedia.org/wiki/SQL) and immense *query* capability. 
 
 
 #### [Code-First vs Database-First](https://strapi.io/blog/code-first-vs-database-first)
