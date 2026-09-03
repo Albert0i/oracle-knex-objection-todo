@@ -10,7 +10,7 @@
 Honestly, I won't recommend Oracle to anyone, as for ORM, I won't recommend it either. For the more I endeavour in ORM, the more I appreciate the succinctness of [SQL](https://en.wikipedia.org/wiki/SQL) and immense *query* capability. 
 
 
-#### [Code-First vs Database-First](https://strapi.io/blog/code-first-vs-database-first)
+#### I. [Code-First vs Database-First](https://strapi.io/blog/code-first-vs-database-first)
 > **Code-First** and **Database-First** determines your application's single source of truth and dictates how data structures evolve.
 
 > Code-first starts with your domain models, not the database. You define your data structures as classes, and the framework generates the database schema from them. This keeps business logic at the center and ensures your data model evolves directly from application code.
@@ -24,7 +24,7 @@ A lightweight abstration layer can be used to provide a consistent interface for
 [Schema evolution](https://en.wikipedia.org/wiki/Schema_evolution) refers to the management (design, apply and version control) of changes to tables in RDBMS to reflect new requirement. This pose additional challenge to modern application development. 
 
 
-#### [Knex.js](https://knexjs.org/)
+#### II. [Knex.js](https://knexjs.org/)
 > Knex.js is a batteries-included SQL query builder for JavaScript.
 
 > **Knex.js** (pronounced [/kəˈnɛks/](https://youtu.be/19Av0Lxml-I?t=521)) is a "batteries included" SQL query builder for **PostgreSQL**, **CockroachDB**, **MSSQL**, **MySQL**, **MariaDB**, **SQLite3**, **Better-SQLite3**, **Oracle**, and **Amazon Redshift** designed to be flexible, portable, and fun to use.
@@ -383,8 +383,18 @@ npx knex seed:run --specific=seed-filename.js --specific=another-seed-filename.j
 
 Seeding a database is simplier than migration and there is no `rollback` or `unseed` and whatsoever. Any table no matter how you created can be seeded provided columns requirements are matcheed. 
 
+**See also** 
 
-#### [Objection.js](https://vincit.github.io/objection.js/)
+- [Knex Query Builder](https://knexjs.org/guide/query-builder.html)
+
+> The heart of the library, the knex query builder is the interface used for building and executing standard SQL queries, such as `select`, `insert`, `update`, `delete`.
+
+- [Raw](https://knexjs.org/guide/raw.html)
+
+> Sometimes you may need to use a raw expression in a query. Raw query object may be injected pretty much anywhere you want, and using proper bindings can ensure your values are escaped properly, preventing SQL-injection attacks.
+
+
+#### III. [Objection.js](https://vincit.github.io/objection.js/)
 > Objection.js is an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) for [Node.js](https://nodejs.org/) that aims to stay out of your way and make it as easy as possible to use the full power of SQL and the underlying database engine while still making the common stuff easy and enjoyable.
 
 > Even though ORM is the best commonly known acronym to describe objection, a more accurate description is to call it a **relational query builder**. You get all the benefits of an SQL query builder but also a powerful set of tools for working with relations.
@@ -563,18 +573,13 @@ testConnection();
 
 ![alt test connection](img/testConn.JPG)
 
-- [Knex Query Builder](https://knexjs.org/guide/query-builder.html)
-
-> The heart of the library, the knex query builder is the interface used for building and executing standard SQL queries, such as `select`, `insert`, `update`, `delete`.
-
-- [Raw](https://knexjs.org/guide/raw.html)
-
-> Sometimes you may need to use a raw expression in a query. Raw query object may be injected pretty much anywhere you want, and using proper bindings can ensure your values are escaped properly, preventing SQL-injection attacks.
-
-Check [queryCustomers.js](src/queryCustomers.js) for details. 
+Please compare [queryCustomers1.js](src/queryCustomers1.js) and [queryCustomers2.js](src/queryCustomers2.js)for details. 
 
 
-#### Bibliography 
+#### IV. Corollary 
+
+
+#### V. Bibliography 
 1. [Code-First vs Database-First: Which Approach Should You Use in 2025?](https://strapi.io/blog/code-first-vs-database-first)
 2. [Knex.js](https://knexjs.org/)
 3. [Objection.js](https://vincit.github.io/objection.js/)
