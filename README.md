@@ -1,90 +1,399 @@
 ### Tutorial: Building an Oracle Todo App with Objection.js + Knex.js
 
-![alt Objection.js + Knex.js](img/Copilot_20260825_164654.png)
+> "These are my Confessions, and if in them I say nothing, it’s because I have nothing to say."<br /><br />"São as minhas Confissões, e, se nelas nada digo, é que nada tenho que dizer."
+<br/>--- The Book of Disquiet by Fernando Pessoa
 
 
-#### 1. Introduction
+#### Prologue 
+Honestly, I won't recommend Oracle to anyone, as for ORM, I won't recommend it either. For the more I endeavour in ORM, the more I appreciate the succinctness of [SQL](https://en.wikipedia.org/wiki/SQL) and immense join capability. 
 
-When you build Node.js applications that interact with relational databases, you often face a choice between raw SQL and ORM frameworks. For Oracle, the ecosystem is smaller than for PostgreSQL or MySQL, but [Knex.js](https://knexjs.org/) and [Objection.js](https://vincit.github.io/objection.js/) together form a powerful, flexible, and JavaScript‑friendly stack.
 
-This guide walks you through creating a **Todo List** app using Oracle, Knex.js, and Objection.js — all written in **ES6 import syntax**. You’ll learn how to connect to Oracle, define models, run migrations, seed data, and query your database elegantly.
+#### [Code-First vs Database-First](https://strapi.io/blog/code-first-vs-database-first)
+> **Code-First** and **Database-First** determines your application's single source of truth and dictates how data structures evolve.
 
-We’ll use this Oracle schema:
+> Code-first starts with your domain models, not the database. You define your data structures as classes, and the framework generates the database schema from them. This keeps business logic at the center and ensures your data model evolves directly from application code.
 
-```sql
+> Database-first begins with an existing database schema and generates entity classes from it. This approach emphasizes database design and optimization, which is ideal for data-heavy applications or projects built on legacy systems.
+
+Legacy applications are built on tables of RDBMS. They evince high efficiency but tend to be [Close coupling](https://en.wikipedia.org/wiki/Close_coupling) with specific backend. Database upgrade or migration bring about unpredictable difficult because all code tights together. 
+
+A lightweight abstration layer can be used to provide a consistent interface for accessing different databases. This mitigate platform specific problems and yet platform dependent functions can be used via special interfae. 
+
+[Schema evolution](https://en.wikipedia.org/wiki/Schema_evolution) refers to the management (design, apply and version control) of changes to tables in RDBMS to reflect new requirement. This pose additional challenge to modern application development. 
+
+
+#### [Knex.js](https://knexjs.org/)
+> Knex.js is a batteries-included SQL query builder for JavaScript.
+
+> **Knex.js** (pronounced [/kəˈnɛks/](https://youtu.be/19Av0Lxml-I?t=521)) is a "batteries included" SQL query builder for **PostgreSQL**, **CockroachDB**, **MSSQL**, **MySQL**, **MariaDB**, **SQLite3**, **Better-SQLite3**, **Oracle**, and **Amazon Redshift** designed to be flexible, portable, and fun to use.
+
+To begin with, run `npm init -y` and change `"type": "module"` in `package.json` and then: 
+```
+npm install objection knex oracledb dotenv
+```
+
+Create a file named `knexfile.js` in `./`:
+```
+import 'dotenv/config'; 
+
+export default {
+  development: {
+    client: 'oracledb',
+    connection: {
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      connectString: process.env.DB_CONNECTION_STRING
+    },
+    migrations: {
+      directory: './migrations',
+      tableName: 'knex_migrations',
+      stub: './stubs/migration.stub'
+    },
+    seeds: {
+      directory: './seeds',
+      stub: './stubs/seed.stub'
+    },
+    debug: false,              // log SQL queries to console
+    asyncStackTraces: false,   // show full async stack traces on errors
+    fetchAsString: [ 'DATE', 'NUMBER' ], // return DATE/NUMBER columns as strings
+  }  
+};
+```
+
+> Migrations allow for you to define sets of schema changes so upgrading a database is a breeze.
+
+```
+npx knex migrate:list
+npx knex migrate:make create_todo_list
+npx knex migrate:list
+```
+
+![alt npx-knex-migrate-make](img/npx-knex-migrate-make.JPG)
+
+By default, knex created two tables, two sequences and two triggers on the same schema to keep track of migrations: 
+
+```
+-- "knex_migrations" definition
+CREATE TABLE "knex_migrations" 
+(	"id"    NUMBER(*,0) NOT NULL, 
+  "name"  VARCHAR2(255), 
+  "batch" NUMBER(*,0), 
+  "migration_time" TIMESTAMP (6) WITH LOCAL TIME ZONE, 
+
+  PRIMARY KEY ("id")
+);
+
+-- "knex_migrations_lock" definition
+CREATE TABLE "knex_migrations_lock" 
+(	"index"     NUMBER(*,0) NOT NULL ENABLE, 
+	"is_locked" NUMBER(*,0), 
+
+	 PRIMARY KEY ("index")
+);
+
+-- Sequence to generate unique IDs for Knex migrations
+CREATE SEQUENCE "knex_migrations_seq"
+  INCREMENT BY 1        -- Each NEXTVAL increases by 1
+  MINVALUE 1            -- Lowest possible value
+  MAXVALUE 9999999999999999999999999999  -- Very high upper bound
+  NOCYCLE               -- Sequence will not restart after reaching MAXVALUE
+  CACHE 20              -- Pre-allocate 20 values in memory for faster access
+  NOORDER;              -- Values are not guaranteed to be in request order in RAC
+
+-- Sequence to generate unique values for knex_migrations_lock
+CREATE SEQUENCE "knex_migrations_lock_seq"
+  INCREMENT BY 1                 -- Each NEXTVAL increases by 1
+  MINVALUE 1                     -- Lowest possible value
+  MAXVALUE 9999999999999999999999999999  -- Upper bound (very large)
+  NOCYCLE                        -- Sequence will not restart after reaching MAXVALUE
+  CACHE 20                       -- Pre-allocate 20 values in memory for faster access
+  NOORDER;                       -- Values are not guaranteed to be in request order
+
+-- Trigger to auto-generate a unique ID for knex_migrations
+CREATE OR REPLACE TRIGGER ALBERTOI."knex_migrations_autoinc_trg"
+BEFORE INSERT ON "knex_migrations"       -- Fires before every insert on the migrations table
+FOR EACH ROW
+DECLARE
+  checking NUMBER := 1;                  -- Variable used to check uniqueness of the generated value
+BEGIN
+  -- Only assign an ID if none was provided
+  IF (:new."id" IS NULL) THEN
+    -- Loop until a unique sequence value is found
+    WHILE checking >= 1 LOOP
+      -- Get the next value from the sequence and assign it to the new row
+      SELECT "knex_migrations_seq".NEXTVAL
+      INTO :new."id"
+      FROM dual;
+
+      -- Check if this value already exists in the table
+      SELECT COUNT("id")
+      INTO checking
+      FROM "knex_migrations"
+      WHERE "id" = :new."id";
+    END LOOP;
+  END IF;
+END;
+
+-- Trigger to auto-generate a unique "index" value for each row in knex_migrations_lock
+CREATE OR REPLACE TRIGGER "knex_migrations_lock_autoinc_trg"
+BEFORE INSERT ON "knex_migrations_lock"   -- Fires before every insert on the lock table
+FOR EACH ROW
+DECLARE
+  checking NUMBER := 1;                   -- Variable used to check uniqueness of the generated value
+BEGIN
+  -- Only assign a value if "index" was not provided in the insert
+  IF (:new."index" IS NULL) THEN
+    -- Loop until a unique sequence value is found
+    WHILE checking >= 1 LOOP
+      -- Get the next value from the sequence and assign it to the new row
+      SELECT "knex_migrations_lock_seq".NEXTVAL
+      INTO :new."index"
+      FROM dual;
+
+      -- Check if this value already exists in the table
+      SELECT COUNT("index")
+      INTO checking
+      FROM "knex_migrations_lock"
+      WHERE "index" = :new."index";
+    END LOOP;
+  END IF;
+END;
+```
+
+Ok, let's back the migration... As you can see there is a `20260901083703_create_todo_list.js` file create on `./migration` folder:  
+
+```
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function up(knex) {
+  // TODO: Define schema changes here
+  // Example: createTable, alterTable, addColumn, etc.
+  // e.g. await knex.schema.createTable('SAMPLE_TABLE', table => { ... });
+}
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+export async function down(knex) {
+  // TODO: Define how to undo the changes from `up`
+  // Example: dropTable, dropColumn, etc.
+  // e.g. await knex.schema.dropTable('SAMPLE_TABLE');
+}
+```
+
+Go ahead to write two functions like so: 
+
+```
+export async function up(knex) {
+  await knex.schema.createTable('TODO_LIST', (table) => {
+    table.increments('ID').primary();
+    table.string('TITLE', 255).notNullable();
+    table.string('STATUS', 50).notNullable();
+    table.timestamp('CREATED_AT').defaultTo(knex.fn.now());
+  });
+}
+
+export async function down(knex) {
+  await knex.schema.dropTable('TODO_LIST');
+}
+```
+
+Run the migration: 
+
+```
+npx knex migrate:latest 
+  or 
+npx knex migrate:up 20260901083703_create_todo_list.js 
+```
+
+To rollback the migration: 
+```
+npx knex migrate:rollback
+  or 
+npx knex migrate:down 20260901083703_create_todo_list.js
+```
+
+![alt migrate and rollback](img/npx-knex-migrate-latest-rollback.JPG)
+
+![alt up and down](img/npx-knex-migrate-up-down.JPG)
+
+![alt migrate list](img/npx-knex-migrate-list.JPG)
+
+```
+SELECT "id", "name", "batch", "migration_time" 
+FROM "knex_migrations";
+
+22	20260901083703_create_todo_list.js	1	2026-09-01 16:45:38.087
+```
+
+Adding New Columns: 
+
+```
+npm run migrate:make add_location_tel_to_todo_list
+```
+
+`20260901091054_add_location_tel_to_todo_list.js`
+```
+export async function up(knex) {
+  await knex.schema.alterTable('TODO_LIST', (table) => {
+    table.string('LOCATION', 100);
+    table.string('TEL', 20);
+  });
+}
+
+export async function down(knex) {
+  await knex.schema.alterTable('TODO_LIST', (table) => {
+    table.dropColumn('LOCATION');
+    table.dropColumn('TEL');
+  });
+}
+```
+
+![alt migrate list](img/npx-knex-migrate-list-2.JPG)
+
+```
+CREATE TABLE "TODO_LIST" 
+(
+  "ID"          NUMBER NOT NULL,
+  "TITLE"       VARCHAR2(255) NOT NULL,
+  "STATUS"      VARCHAR2(50) NOT NULL,
+  "CREATED_AT"  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  "LOCATION"    VARCHAR2(100),
+  "TEL"         VARCHAR2(20),
+
+  CONSTRAINT todo_list_pk PRIMARY KEY ("ID")
+);
+
+CREATE SEQUENCE "todo_list_seq"
+  START WITH 1
+  INCREMENT BY 1
+  NOCACHE
+  NOCYCLE;
+
+CREATE OR REPLACE TRIGGER "todo_list_autoinc_trg"
+BEFORE INSERT ON "TODO_LIST"
+FOR EACH ROW
+BEGIN
+  IF :new."ID" IS NULL THEN
+    SELECT "todo_list_seq".NEXTVAL
+    INTO :new."ID"
+    FROM dual;
+  END IF;
+END;
+
+ALTER TRIGGER "todo_list_autoinc_trg" ENABLE;
+```
+
+Inspecting the `knex_migrations` table with: 
+
+```
+SELECT "id", "name", "batch", "migration_time" 
+FROM "knex_migrations";
+
+2	20260901091054_add_location_tel_to_todo_list.js	2	2026-09-01 17:13:29.553
+22	20260901083703_create_todo_list.js	1	2026-09-01 16:45:38.087
+```
+
+To compare with clean and compact schema used in **Database-First** approach: 
+```
 CREATE TABLE todo_list (
     id          NUMBER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
     title       VARCHAR2(100) NOT NULL,
     status      VARCHAR2(20) DEFAULT 'PENDING',
     created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE todo_list ADD location VARCHAR2(100);
+
+ALTER TABLE todo_list ADD telnum VARCHAR2(20);
 ```
 
+Please note that files in `./migrations` folder have to be aligned with `knex_migrations` otherwise you may be greeted with a "migration corrupt" message. 
 
-#### 2. Project Setup
+![alt migrate corrupt](img/npx-knex-migrate-corrupt.JPG)
 
-##### Step 1: Initialize the project
+Sometimes, migration is lock due to previous failed migration: 
 
-```bash
-mkdir oracle-objection-todo
-cd oracle-objection-todo
-npm init -y
+![alt migrate lock](img/npx-knex-migrate-lock.JPG)
+
+In this case, unlock with: 
+
+```
+npx knex migrate:unlock 
 ```
 
-##### Step 2: Enable ES modules
+![alt migrate unlock](img/npx-knex-migrate-unlock.JPG)
 
-In your `package.json`, add:
+This virtually flips `is_locked` column on `knex_migrations_lock` from one to zero. Last but not least, to rollback all the completed migrations:
 
-```json
-{
-  "type": "module"
+```
+npx knex migrate:rollback --all
+```
+
+![alt migrate rollback all](img/npx-knex-migrate-rollbackup-all.JPG)
+
+This effectively remove table, sequence and trigger for `TODO_LIST`. And this pretty much concludes our discussion on schema migration using **Code-First** approach on `Knex.js`. May it be **Code-First** or **Database-First** is purely a design philosophy, you are the owner of your project after all... 
+
+![alt motto](img/Copilot_20260902_102337.png)
+
+> Seed files allow you to populate your database with test or seed data independent of your migration files.
+
+To begin with seeding our `TODO_LIST`: 
+
+```
+npx knex seed:make seed_todos
+```
+
+This create a `seed_todos.js` in `./seeds` folder like so: 
+
+```
+export async function seed(knex) {
+  await knex('SAMPLE_TABLE').del();
+
+  const sampleData = [
+    { name: 'Alice', status: 'ACTIVE' },
+    { name: 'Bob', status: 'INACTIVE' },
+    { name: 'Charlie', status: 'ACTIVE' }
+  ];
+
+  for (const row of sampleData) {
+    await knex('SAMPLE_TABLE').insert(row);
+  }
 }
 ```
 
-This tells Node.js to use ES6 import/export syntax.
+Change it to match your `TODO_LIST` table and run with: 
 
-##### Step 3: Install dependencies
-
-```bash
-npm install knex objection oracledb
+```
+npx seed:run
 ```
 
+> Seed files are executed in alphabetical order. Unlike migrations, every seed file will be executed when you run the command. You should design your seed files to reset tables as needed before inserting data.
 
-#### 3. Configure Knex.js
+> To run specific seed files, execute:
 
-Create a file named `knexfile.js`:
-
-```js
-export default {
-  client: 'oracledb',
-  connection: {
-    user: 'albertoi',
-    password: 'your_password',
-    connectString: 'localhost/XEPDB1'
-  },
-  pool: { min: 2, max: 10 }
-};
+```
+npx knex seed:run --specific=seed-filename.js --specific=another-seed-filename.js 
 ```
 
-Then create `db.js` to initialize Knex and Objection:
-
-```js
-import Knex from 'knex';
-import { Model } from 'objection';
-import knexConfig from './knexfile.js';
-
-const knex = Knex(knexConfig);
-Model.knex(knex);
-
-export default knex;
-```
+Seeding a database is simplier than migration and there is no `rollback` or `unseed` and whatsoever. Any table no matter how you created can be seeded provided columns requirements are matcheed. 
 
 
-#### 4. Define the Model
+#### [Objection.js](https://vincit.github.io/objection.js/)
+> Objection.js is an [ORM](https://en.wikipedia.org/wiki/Object-relational_mapping) for [Node.js](https://nodejs.org/) that aims to stay out of your way and make it as easy as possible to use the full power of SQL and the underlying database engine while still making the common stuff easy and enjoyable.
+
+> Even though ORM is the best commonly known acronym to describe objection, a more accurate description is to call it a **relational query builder**. You get all the benefits of an SQL query builder but also a powerful set of tools for working with relations.
+
+> Objection.js is built on an SQL query builder called [knex](http://knexjs.org/). All databases supported by knex are supported by objection.js. SQLite3, Postgres and MySQL are thoroughly tested (opens new window).
+
+> To use objection.js all you need to do is [initialize knex](https://knexjs.org/guide/#node-js) and give the created knex instance to objection.js using [Model.knex(knex)](https://vincit.github.io/objection.js/api/model/static-methods.html#static-knex). Doing this installs the knex instance globally for all models (even the ones that have not been created yet). If you need to use multiple databases check out our [multi-tenancy recipe](https://vincit.github.io/objection.js/recipes/multitenancy-using-multiple-databases.html).
 
 Create `models/Todo.js`:
 
-```js
+```
 import { Model } from 'objection';
 
 class Todo extends Model {
@@ -113,399 +422,167 @@ class Todo extends Model {
 export default Todo;
 ```
 
-
-#### 5. Insert Sample Data
-
-You can seed the database programmatically:
-
-```js
-import Todo from './models/Todo.js';
-
-async function seedTodos() {
-  await Todo.query().insert([
-    { title: 'Fix the quantum interference device broken by Stuart Bloom' },
-    { title: 'Escape the repressive AI on the idyllic version of Earth' },
-    { title: 'Enlist a powerful wizard to help Bert find a sorcery gift' },
-    { title: 'Survive the post-apocalyptic Pasadena and avoid giant moths' },
-    { title: 'Barter canned vegetables and cat food for rare comic books' },
-    { title: 'Overthrow military dictator Barry Kripke in alternate reality' },
-    { title: 'Locate Denise after she mysteriously disappears in the multiverse' },
-    { title: 'Convince doctors in the mental institution that the multiverse is real' },
-    { title: 'Break out of the Matrix pods before reality resets again' },
-    { title: 'Undo the multiverse Armageddon accidentally unleashed by the gang' },
-    { title: 'Help Gary secure his new job working for UPS' },
-    { title: 'Find the original universe where Leonard and Sheldon live' }
-  ]);
-}
-
-seedTodos();
+`models/Customer.js`
 ```
-
-
-#### 6. Query Examples
-
-##### Fetch all todos
-```js
-import Todo from './models/Todo.js';
-
-const todos = await Todo.query();
-console.log(todos);
-```
-
-##### Fetch pending tasks
-```js
-const pending = await Todo.query().where('STATUS', 'PENDING');
-console.log(pending);
-```
-
-##### Mark a task as completed
-```js
-await Todo.query().findById(1).patch({ status: 'COMPLETED' });
-```
-
-##### Count tasks by status
-```js
-const counts = await Todo.query()
-  .select('STATUS')
-  .count('* as count')
-  .groupBy('STATUS');
-
-console.log(counts);
-```
-
-
-#### 7. Migrations with Knex
-
-Knex provides a CLI for schema management.
-
-Create a migration:
-```bash
-npx knex migrate:make create_todo_list
-```
-
-Edit the migration file:
-```js
-export async function up(knex) {
-  await knex.schema.createTable('TODO_LIST', table => {
-    table.increments('ID').primary();
-    table.string('TITLE', 100).notNullable();
-    table.string('STATUS', 20).defaultTo('PENDING');
-    table.timestamp('CREATED_AT').defaultTo(knex.fn.now());
-  });
-}
-
-export async function down(knex) {
-  await knex.schema.dropTable('TODO_LIST');
-}
-```
-
-Run it:
-```bash
-npx knex migrate:latest
-```
-
-
-#### 8. Seeding Data with Knex
-
-Create a seed file:
-```bash
-npx knex seed:make seed_todos
-```
-
-Edit it:
-```js
-export async function seed(knex) {
-  await knex('TODO_LIST').del();
-  await knex('TODO_LIST').insert([
-    { TITLE: 'Fix the quantum interference device broken by Stuart Bloom' },
-    { TITLE: 'Escape the repressive AI on the idyllic version of Earth' },
-    { TITLE: 'Enlist a powerful wizard to help Bert find a sorcery gift' },
-    { TITLE: 'Survive the post-apocalyptic Pasadena and avoid giant moths' },
-    { TITLE: 'Barter canned vegetables and cat food for rare comic books' },
-    { TITLE: 'Overthrow military dictator Barry Kripke in alternate reality' },
-    { TITLE: 'Locate Denise after she mysteriously disappears in the multiverse' },
-    { TITLE: 'Convince doctors in the mental institution that the multiverse is real' },
-    { TITLE: 'Break out of the Matrix pods before reality resets again' },
-    { TITLE: 'Undo the multiverse Armageddon accidentally unleashed by the gang' },
-    { TITLE: 'Help Gary secure his new job working for UPS' },
-    { TITLE: 'Find the original universe where Leonard and Sheldon live' }
-  ]);
-}
-```
-
-Run seeds:
-```bash
-npx knex seed:run
-```
-
-
-#### 9. Advanced Queries
-
-##### Search by keyword
-```js
-const results = await Todo.query().where('TITLE', 'like', '%multiverse%');
-console.log(results);
-```
-
-##### Pagination
-```js
-const page = await Todo.query().page(0, 5);
-console.log(page.results);
-```
-
-##### Raw SQL fallback
-```js
-const raw = await Todo.knex().raw(
-  'SELECT * FROM TODO_LIST WHERE STATUS = :status',
-  { status: 'PENDING' }
-);
-console.log(raw);
-```
-
-
-#### 10. Project Structure
-
-```
-oracle-objection-todo/
-├── knexfile.js
-├── db.js
-├── models/
-│   └── Todo.js
-├── migrations/
-├── seeds/
-├── services/
-│   └── todoService.js
-└── index.js
-```
-
-- **models/** → Objection models  
-- **services/** → Business logic  
-- **migrations/** → Schema changes  
-- **seeds/** → Sample data  
-
-
-#### 11. Service Layer
-
-`services/todoService.js`:
-```js
-import Todo from '../models/Todo.js';
-
-export async function getPendingTodos() {
-  return await Todo.query().where('STATUS', 'PENDING');
-}
-
-export async function completeTodo(id) {
-  return await Todo.query().findById(id).patch({ status: 'COMPLETED' });
-}
-
-export async function addTodo(title) {
-  return await Todo.query().insert({ title });
-}
-```
-
-
-#### 12. Example Application
-
-`index.js`:
-```js
-import { getPendingTodos, completeTodo, addTodo } from './services/todoService.js';
-
-async function main() {
-  await addTodo('Defeat the evil AI overlord in Macau');
-  const pending = await getPendingTodos();
-  console.log('Pending tasks:', pending);
-
-  if (pending.length > 0) {
-    await completeTodo(pending[0].ID);
-    console.log('Marked first task as completed.');
-  }
-}
-
-main();
-```
-
-
-#### 13. Understanding the Architecture
-
-At a high level, the architecture looks like this:
-
-- **Application Code (Node.js)**  
-  You write JavaScript using Objection.js models (`Todo`, `User`, etc.).
-
-- **Objection.js (ORM Layer)**  
-  Provides models, relations, validation, and convenience methods. It translates your model queries into Knex queries.
-
-- **Knex.js (Query Builder)**  
-  Generates SQL statements appropriate for Oracle (or other databases). It manages migrations, transactions, and raw SQL execution.
-
-- **Database Driver (`node-oracledb`)**  
-  Executes the SQL against Oracle and returns results.
-
-- **Oracle Database**  
-  Stores your tables, rows, and business data.
-
-This layered approach means you can start with ORM‑style queries (`Todo.query().insert(...)`) but still drop down to Knex or raw SQL when you need maximum control.
-
-
-#### 14. Example Workflow
-
-Let’s trace a simple workflow: adding a new todo.
-
-1. **Application Code**
-   ```js
-   import Todo from './models/Todo.js';
-   await Todo.query().insert({ title: 'Defeat the evil AI overlord in Macau' });
-   ```
-
-2. **Objection.js**
-   - Validates the input against the model schema.
-   - Builds a Knex query object.
-
-3. **Knex.js**
-   - Converts the query object into SQL:
-     ```sql
-     INSERT INTO TODO_LIST (TITLE, STATUS, CREATED_AT)
-     VALUES ('Defeat the evil AI overlord in Macau', 'PENDING', CURRENT_TIMESTAMP)
-     ```
-   - Passes it to the Oracle driver.
-
-4. **Oracle Driver**
-   - Executes the SQL against the database.
-   - Returns the inserted row’s ID.
-
-5. **Application Code**
-   - Receives the result and continues execution.
-
-
-#### 15. Transactions
-
-Knex supports transactions, and Objection integrates seamlessly.
-
-```js
-import knex from './db.js';
-import Todo from './models/Todo.js';
-
-async function transactionalExample() {
-  await knex.transaction(async trx => {
-    await Todo.query(trx).insert({ title: 'Start transaction demo' });
-    await Todo.query(trx).insert({ title: 'Second insert in same transaction' });
-    // If an error occurs, both inserts are rolled back.
-  });
-}
-```
-
-
-#### 16. Relations (Future Expansion)
-
-Even though our `todo_list` table is standalone, Objection shines when you have multiple tables with relations. For example, if you had a `users` table:
-
-```js
 import { Model } from 'objection';
-import Todo from './Todo.js';
 
-class User extends Model {
+class Customer extends Model {
   static get tableName() {
-    return 'USERS';
+    return 'CUSTOMERS';
   }
 
-  static get relationMappings() {
+  static get idColumn() {
+    return 'CUSTOMERID';
+  }
+
+  static get jsonSchema() {
     return {
-      todos: {
-        relation: Model.HasManyRelation,
-        modelClass: Todo,
-        join: {
-          from: 'USERS.ID',
-          to: 'TODO_LIST.USER_ID'
-        }
+      type: 'object',
+      required: ['customerId', 'companyName'],
+      properties: {
+        customerId: { type: 'string', maxLength: 5 },
+        companyName: { type: 'string', maxLength: 40 },
+        contactName: { type: 'string', maxLength: 30 },
+        contactTitle: { type: 'string', maxLength: 30 },
+        address: { type: 'string', maxLength: 60 },
+        city: { type: 'string', maxLength: 30 },
+        region: { type: 'string', maxLength: 15 },
+        postalCode: { type: 'string', maxLength: 10 },
+        country: { type: 'string', maxLength: 15 },
+        phone: { type: 'string', maxLength: 24 },
+        fax: { type: 'string', maxLength: 24 }
+      }
+    };
+  }
+
+  static get columnNameMappers() {
+    return {
+      parse(obj) {
+        return {
+          customerId: obj.CUSTOMERID,
+          companyName: obj.COMPANYNAME,
+          contactName: obj.CONTACTNAME,
+          contactTitle: obj.CONTACTTITLE,
+          address: obj.ADDRESS,
+          city: obj.CITY,
+          region: obj.REGION,
+          postalCode: obj.POSTALCODE,
+          country: obj.COUNTRY,
+          phone: obj.PHONE,
+          fax: obj.FAX
+        };
+      },
+      format(obj) {
+        return {
+          CUSTOMERID: obj.customerId,
+          COMPANYNAME: obj.companyName,
+          CONTACTNAME: obj.contactName,
+          CONTACTTITLE: obj.contactTitle,
+          ADDRESS: obj.address,
+          CITY: obj.city,
+          REGION: obj.region,
+          POSTALCODE: obj.postalCode,
+          COUNTRY: obj.country,
+          PHONE: obj.phone,
+          FAX: obj.fax
+        };
       }
     };
   }
 }
 
-export default User;
+export default Customer;
 ```
 
-Then you could query with relations:
+For `Customers` table: 
+```
+-- CUSTOMERS definition
+CREATE TABLE "CUSTOMERS" (
+  "CUSTOMERID"   VARCHAR2(5)  NOT NULL,
+  "COMPANYNAME"  VARCHAR2(40) NOT NULL,
+  "CONTACTNAME"  VARCHAR2(30),
+  "CONTACTTITLE" VARCHAR2(30),
+  "ADDRESS"      VARCHAR2(60),
+  "CITY"         VARCHAR2(30),
+  "REGION"       VARCHAR2(15),
+  "POSTALCODE"   VARCHAR2(10),
+  "COUNTRY"      VARCHAR2(15),
+  "PHONE"        VARCHAR2(24),
+  "FAX"          VARCHAR2(24),
+  CONSTRAINT customers_pk PRIMARY KEY ("CUSTOMERID")
+);
 
-```js
-const usersWithTodos = await User.query().withGraphFetched('todos');
+CREATE UNIQUE INDEX "CUSTOMERS_PK" ON "CUSTOMERS" ("CUSTOMERID");
+
+CREATE INDEX "CUSTOMERS_CITY" ON "CUSTOMERS" ("CITY");
+CREATE INDEX "CUSTOMERS_COMPANYNAME" ON "CUSTOMERS" ("COMPANYNAME");
+CREATE INDEX "CUSTOMERS_POSTALCODE" ON "CUSTOMERS" ("POSTALCODE");
+CREATE INDEX "CUSTOMERS_REGION" ON "CUSTOMERS" ("REGION");
 ```
 
+Then create `db.js` to initialize Knex and Objection:
+```
+import knex from 'knex';
+import { Model } from 'objection';
+import config from '../knexfile.js';
 
-#### 17. Validation
+// Select the environment (development, production, etc.)
+const environment = process.env.NODE_ENV || 'development';
 
-Objection’s `jsonSchema` ensures data integrity at the application level:
+const db = knex(config[environment]);
 
-```js
-static get jsonSchema() {
-  return {
-    type: 'object',
-    required: ['title'],
-    properties: {
-      title: { type: 'string', maxLength: 100 },
-      status: { type: 'string', enum: ['PENDING', 'COMPLETED'] }
-    }
-  };
+Model.knex(db);
+
+export default db;
+```
+
+`testConn.js` 
+```
+import db from './db.js';
+
+async function testConnection() {
+  try {
+    // Run a simple query to confirm Oracle connectivity
+    const result = await db.raw('SELECT banner_full FROM v$version');
+    console.log('✅ Connection OK:', result);
+
+  } catch (err) {
+    console.error('❌ Connection failed:', err);
+  } finally {
+    // Always close the pool
+    await db.destroy();
+  }
 }
+
+testConnection();
 ```
 
-If you try to insert a todo with a missing title or invalid status, Objection will throw an error before hitting the database.
+![alt test connection](img/testConn.JPG)
+
+- [Knex Query Builder](https://knexjs.org/guide/query-builder.html)
+
+> The heart of the library, the knex query builder is the interface used for building and executing standard SQL queries, such as `select`, `insert`, `update`, `delete`.
+
+- [Raw](https://knexjs.org/guide/raw.html)
+
+> Sometimes you may need to use a raw expression in a query. Raw query object may be injected pretty much anywhere you want, and using proper bindings can ensure your values are escaped properly, preventing SQL-injection attacks.
+
+Check [queryCustomers.js](src/queryCustomers.js) for details. 
 
 
-#### 18. Best Practices
-
-- **Keep models lean**: Only define schema and relations in models. Put business logic in services.  
-- **Use migrations**: Always manage schema changes with Knex migrations for consistency.  
-- **Seed data**: Use Knex seeds for test/demo data.  
-- **Transactions**: Wrap multi‑step operations in transactions.  
-- **Error handling**: Catch and log database errors gracefully.  
-- **Raw SQL fallback**: Don’t hesitate to use raw queries for complex Oracle features.  
+#### Bibliography 
+1. [Code-First vs Database-First: Which Approach Should You Use in 2025?](https://strapi.io/blog/code-first-vs-database-first)
+2. [Knex.js](https://knexjs.org/)
+3. [Objection.js](https://vincit.github.io/objection.js/)
+4. [oracledb](https://www.npmjs.com/package/oracledb)
+5. [The Book of Disquiet by Fernando Pessoa](doc/The%20Book%20of%20Disquiet%20-%20Fernando%20Pessoa.pdf)
 
 
-#### 19. Pros & Cons Recap
+#### Epilogue 
 
-**Pros of Objection.js + Knex.js**  
-- Works in pure JavaScript (ES6 imports supported).  
-- Oracle support via `node-oracledb`.  
-- Flexible: ORM features + raw SQL.  
-- Lightweight, not bloated.  
+> "A tedium that includes the expectation of nothing but more tedium; a regret, right now, for the regret I’ll have tomorrow for having felt regret today – huge confusions with no point and no truth, huge confusions…"
 
-**Cons**  
-- Migrations are manual (Knex CLI).  
-- Less polished tooling compared to Prisma.  
-- Minimal type safety in JS (better in TS).  
+> "Um tédio que inclui a antecipação só de mais tédio; a pena, já, de amanhã ter pena de ter tido pena hoje — grandes emaranhamentos sem utilidade nem verdade, grandes emaranhamentos..."
 
 
-#### 20. Conclusion
-
-By combining **Objection.js** and **Knex.js**, you get the best of both worlds: ORM convenience and SQL flexibility. For Oracle projects in JavaScript, this stack is practical, stable, and developer‑friendly.
-
-Your `todo_list` table becomes a playground for experimenting with inserts, queries, updates, and transactions. As your project grows, you can add relations, validation, and service layers — all while staying in modern ES6 syntax.
-
-![alt visual workflow diagram](img/Copilot_20260825_165857.png)
-
-
-#### Appendix: Objection.js + Knex.js vs Prisma
-
-| Feature | **Objection.js + Knex.js** | **Prisma** |
-|---------|-----------------------------|------------|
-| **Oracle Support** | ✅ Works via Knex + `node-oracledb` driver | ❌ Not supported |
-| **Language Orientation** | ✅ Pure JavaScript (no TypeScript required) | ⚠️ TypeScript‑first (JS possible but limited) |
-| **Philosophy** | Query builder + lightweight ORM | Schema‑first, declarative ORM |
-| **Schema Definition** | Models as JS classes | `.prisma` schema file |
-| **Type Safety** | Minimal in JS (no TS types) | Excellent in TS, weaker in JS |
-| **Migrations** | Knex migration system (manual, flexible) | Prisma Migrate (integrated, declarative) |
-| **Querying Style** | SQL‑like via Knex, flexible | Abstracted, fluent API |
-| **Performance** | Very good, close to raw SQL | Excellent, optimized client |
-| **Community & Ecosystem** | Strong in JS/Knex world | Rapidly growing, TS‑heavy |
-| **Learning Curve** | Moderate (SQL familiarity helps) | Lower for TS devs, higher for JS‑only |
-| **Best Use Case** | JS‑only projects needing Oracle support | Modern TS projects with PostgreSQL/MySQL/etc. |
-
-
-📌 **Practical Takeaways**
-- If you’re building with **Oracle + JavaScript only**, Objection.js + Knex.js is the right choice.  
-- If you’re using **PostgreSQL/MySQL/etc. and TypeScript**, Prisma offers superior developer experience and tooling.  
-- Objection.js gives you flexibility and SQL‑like control, while Prisma emphasizes type safety and productivity.  
-
-
-### EOF (2026/08/28)
+### EOF (2026/09/18)
