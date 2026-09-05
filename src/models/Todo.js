@@ -1,5 +1,5 @@
 /**
- * Todos.js
+ * Todo.js
  */
 import { Model } from 'objection';
 
