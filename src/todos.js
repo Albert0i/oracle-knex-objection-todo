@@ -48,10 +48,7 @@ async function handleChoice(choice) {
       await deleteAllTodos(); 
       break;          
     case '7':
-      await db.destroy();   // close Oracle connections  
-      rl.close();
-      showDisclaimer();
-      console.log("Goodbye!");
+      await exitProgram();
       break;
     default:
       console.log(`You selected option ${choice}`);
@@ -378,6 +375,19 @@ async function deleteAllTodos() {
     console.error("Error fetching todos:", err);
     pressAnyKey();
   }
+}
+
+async function exitProgram() {
+  try {
+    await db.destroy();      // close Oracle connections
+  } catch (err) {
+    console.error("Error closing database:", err);
+  }
+
+  rl.close();                // release readline
+  showDisclaimer();          // framed disclaimer
+  console.log("\nGoodbye!");
+  process.exit(0);           // terminate program cleanly
 }
 
 function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
