@@ -32,6 +32,21 @@ async function handleChoice(choice) {
     case '1':
       await listTodos();
       break;
+    case '2': 
+      await addTodo();
+      break; 
+    case '3': 
+      await changeTodo();
+      break; 
+    case '4': 
+      await toggleTodo();
+      break; 
+    case '5': 
+      await deleteTodo();
+      break;
+    case '6': 
+      await deleteAllTodos(); 
+      break;          
     case '7':
       await db.destroy();   // close Oracle connections  
       rl.close();
@@ -102,6 +117,267 @@ async function listTodos() {
     console.error("Error fetching todos:", err);
   }
   pressAnyKey();
+}
+
+async function addTodo() {
+  console.clear();
+  showBanner();
+  showBanner("Add a New Todo", 40);
+
+  rl.question("\nEnter todo title: ", async (title) => {
+    try {
+      if (!title.trim()) {
+        console.log("Title cannot be empty.");
+      } else {
+        await Todo.query().insert({
+          title: title.trim(),
+          status: "PENDING"
+        });
+        console.log(`Added todo: "${title.trim()}"`);
+      }
+    } catch (err) {
+      console.error("Error adding todo:", err);
+    }
+    pressAnyKey();
+  });
+}
+
+async function changeTodo() {
+  console.clear();
+  showBanner("Change Todo Title", 40);
+
+  try {
+    const todos = await Todo.query();
+
+    if (todos.length === 0) {
+      console.log("No todos available.");
+      return pressAnyKey();
+    }
+
+    rl.question("\nEnter the ID of the todo to change: ", async (idStr) => {
+      const id = parseInt(idStr, 10);
+      if (isNaN(id)) {
+        console.log("Invalid ID.");
+        return pressAnyKey();
+      }
+
+      try {
+        const todo = await Todo.query().findById(id);
+        if (!todo) {
+          console.log(`No todo found with ID ${id}.`);
+          return pressAnyKey();
+        }
+
+        // Show details
+        console.log("\nTodo details:");
+        console.log(`ID: ${todo.id}`);
+        console.log(`Title: ${todo.title}`);
+        console.log(`Status: ${todo.status}`);
+        console.log(`Created At: ${todo.createdAt}`);
+
+        // Ask for new title
+        rl.question("\nEnter new title: ", async (newTitle) => {
+          if (!newTitle.trim()) {
+            console.log("Title cannot be empty.");
+            return pressAnyKey();
+          }
+
+          // Confirm change (default Yes)
+          rl.question(`\nConfirm change title to "${newTitle.trim()}"? [Y/n]: `, async (answer) => {
+            const normalized = answer.trim().toLowerCase();
+            if (normalized === "" || normalized === "y") {
+              try {
+                const updated = await Todo.query().patchAndFetchById(id, { title: newTitle.trim() });
+                if (updated) {
+                  console.log(`Todo with ID ${id} title changed successfully.`);
+                } else {
+                  console.log("Error: update did not occur.");
+                }
+              } catch (err) {
+                console.error("Error updating todo:", err);
+              }
+            } else {
+              console.log("Change cancelled.");
+            }
+            pressAnyKey();
+          });
+        });
+      } catch (err) {
+        console.error("Error fetching todo:", err);
+        pressAnyKey();
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching todos:", err);
+    pressAnyKey();
+  }
+}
+
+async function toggleTodo() {
+  console.clear();
+  showBanner("Toggle Todo", 40);
+
+  try {
+    const todos = await Todo.query();
+
+    if (todos.length === 0) {
+      console.log("No todos available.");
+      return pressAnyKey();
+    }
+
+    rl.question("\nEnter the ID of the todo to toggle: ", async (idStr) => {
+      const id = parseInt(idStr, 10);
+      if (isNaN(id)) {
+        console.log("Invalid ID.");
+        return pressAnyKey();
+      }
+
+      try {
+        const todo = await Todo.query().findById(id);
+        if (!todo) {
+          console.log(`No todo found with ID ${id}.`);
+          return pressAnyKey();
+        }
+
+        // Show details
+        console.log("\nTodo details:");
+        console.log(`ID: ${todo.id}`);
+        console.log(`Title: ${todo.title}`);
+        console.log(`Status: ${todo.status}`);
+        console.log(`Created At: ${todo.createdAt}`);
+
+        // Ask for confirmation (default Yes)
+        rl.question("\nConfirm toggle status? [Y/n]: ", async (answer) => {
+          const normalized = answer.trim().toLowerCase();          
+          if (normalized === "" || normalized === "y") {
+            try {
+              const newStatus = todo.status === "PENDING" ? "COMPLETED" : "PENDING";
+              const updated = await Todo.query().patchAndFetchById(id, { status: newStatus });
+              if (updated) {
+                console.log(`Todo with ID ${id} status toggled to ${newStatus}.`);
+              } else {
+                console.log("Error: toggle did not occur.");
+              }
+            } catch (err) {
+              console.error("Error toggling todo:", err);
+            }
+          } else {
+            console.log("Toggle cancelled.");
+          }
+          pressAnyKey();
+        });
+      } catch (err) {
+        console.error("Error fetching todo:", err);
+        pressAnyKey();
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching todos:", err);
+    pressAnyKey();
+  }
+}
+
+async function deleteTodo() {
+  console.clear();
+  showBanner("Delete Todo", 40);
+
+  try {
+    const todos = await Todo.query();
+
+    if (todos.length === 0) {
+      console.log("No todos to delete.");
+      return pressAnyKey();
+    }
+
+    // Prompt for ID
+    rl.question("\nEnter the ID of the todo to delete: ", async (idStr) => {
+      const id = parseInt(idStr, 10);
+      if (isNaN(id)) {
+        console.log("Invalid ID.");
+        return pressAnyKey();
+      }
+
+      try {
+        const todo = await Todo.query().findById(id);
+        if (!todo) {
+          console.log(`No todo found with ID ${id}.`);
+          return pressAnyKey();
+        }
+
+        // Show details
+        console.log("\nTodo details:");
+        console.log(`ID: ${todo.id}`);
+        console.log(`Title: ${todo.title}`);
+        console.log(`Created At: ${todo.createdAt}`);
+        console.log(`Status: ${todo.status}`);
+
+        // Ask for confirmation
+        rl.question("\nAre you sure you want to delete this todo? [y/N]: ", async (answer) => {
+          if (answer.trim().toLowerCase() === "y") {
+            try {
+              const deleted = await Todo.query().deleteById(id);
+              if (deleted) {
+                console.log(`Todo with ID ${id} deleted successfully.`);
+              } else {
+                console.log("Error: deletion did not occur.");
+              }
+            } catch (err) {
+              console.error("Error deleting todo:", err);
+            }
+          } else {
+            console.log("Deletion cancelled.");
+          }
+          pressAnyKey();
+        });
+      } catch (err) {
+        console.error("Error fetching todo:", err);
+        pressAnyKey();
+      }
+    });
+  } catch (err) {
+    console.error("Error fetching todos:", err);
+    pressAnyKey();
+  }
+}
+
+async function deleteAllTodos() {
+  console.clear();
+  showBanner("Delete All Todos", 40);
+
+  try {
+    const todos = await Todo.query();
+    const count = todos.length;
+
+    if (count === 0) {
+      console.log("No todos to delete.");
+      return pressAnyKey();
+    }
+
+    console.log(`There are currently ${count} todos in the database.`);
+
+    // Ask for confirmation (default No)
+    rl.question("\nAre you sure you want to delete ALL todos? [y/N]: ", async (answer) => {
+      const normalized = answer.trim().toLowerCase();
+      if (normalized === "y") {
+        try {
+          const deleted = await Todo.query().delete();
+          if (deleted) {
+            console.log(`All ${count} todos deleted successfully.`);
+          } else {
+            console.log("Error: deletion did not occur.");
+          }
+        } catch (err) {
+          console.error("Error deleting todos:", err);
+        }
+      } else {
+        console.log("Deletion cancelled.");
+      }
+      pressAnyKey();
+    });
+  } catch (err) {
+    console.error("Error fetching todos:", err);
+    pressAnyKey();
+  }
 }
 
 function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
