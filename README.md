@@ -581,6 +581,14 @@ When working with [MariaDB](https://mariadb.org/) and [SQLite](https://sqlite.or
 
 In the same way, when working with [Oracle](https://www.oracle.com/), [Knex.js](https://knexjs.org/) + [Objection.js](https://vincit.github.io/objection.js/) is chosen because this is the only option which offers an abstraction layer + ORM. 
 
+```
+npm start 
+```
+
+![alt todos](img/todos.JPG)
+
+Enjoy! 
+
 
 #### V. Bibliography 
 1. [Code-First vs Database-First: Which Approach Should You Use in 2025?](https://strapi.io/blog/code-first-vs-database-first)
