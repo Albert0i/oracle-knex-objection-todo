@@ -587,6 +587,8 @@ npm start
 
 ![alt todos](img/todos.JPG)
 
+![alt disclaimer](img/disclaimer.JPG)
+
 Enjoy! 
 
 
