@@ -359,7 +359,10 @@ async function deleteAllTodos() {
         try {
           const deleted = await Todo.query().delete();
           if (deleted) {
-            // Reset the sequence to start at 1
+            /**
+             * Reset the sequence to start at 1.
+             * For todo_list created with knex migrate.
+             */
             await db.raw('ALTER SEQUENCE "todo_list_seq" RESTART START WITH 1');
             
             console.log(`All ${count} todos deleted successfully.`);
