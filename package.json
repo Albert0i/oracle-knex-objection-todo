@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "node src/testConn.js",
+    "start": "node src/todos.js",
     "migrate:make": "knex migrate:make --knexfile knexfile.js",
     "migrate:latest": "knex migrate:latest --knexfile knexfile.js",
     "migrate:rollback": "knex migrate:rollback --knexfile knexfile.js",
