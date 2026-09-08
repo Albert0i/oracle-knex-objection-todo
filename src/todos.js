@@ -359,6 +359,9 @@ async function deleteAllTodos() {
         try {
           const deleted = await Todo.query().delete();
           if (deleted) {
+            // Reset the sequence to start at 1
+            await db.raw('ALTER SEQUENCE "todo_list_seq" RESTART START WITH 1');
+            
             console.log(`All ${count} todos deleted successfully.`);
           } else {
             console.log("Error: deletion did not occur.");
