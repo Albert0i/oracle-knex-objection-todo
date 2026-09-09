@@ -142,6 +142,7 @@ async function addTodo() {
 
 async function changeTodo() {
   console.clear();
+  showBanner();
   showBanner("Change Todo Title", 40);
 
   try {
@@ -213,6 +214,7 @@ async function changeTodo() {
 
 async function toggleTodo() {
   console.clear();
+  showBanner();
   showBanner("Toggle Todo", 40);
 
   try {
@@ -277,6 +279,7 @@ async function toggleTodo() {
 
 async function deleteTodo() {
   console.clear();
+  showBanner();
   showBanner("Delete Todo", 40);
 
   try {
@@ -340,6 +343,7 @@ async function deleteTodo() {
 
 async function deleteAllTodos() {
   console.clear();
+  showBanner();
   showBanner("Delete All Todos", 40);
 
   try {
@@ -397,17 +401,41 @@ async function exitProgram() {
   process.exit(0);           // terminate program cleanly
 }
 
-function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
-  // Ensure banner is at least as wide as the title + padding
-  const bannerWidth = Math.max(width, title.length + 4);
-  const topLine = "+" + "-".repeat(bannerWidth - 2) + "+";
-  const middleLine = "| " + title
-    .padStart(((bannerWidth - 4 + title.length) / 2), " ")
-    .padEnd(bannerWidth - 3, " ") + "|";
+// function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
+//   // Ensure banner is at least as wide as the title + padding
+//   const bannerWidth = Math.max(width, title.length + 4);
+//   const topLine = "+" + "-".repeat(bannerWidth - 2) + "+";
+//   const middleLine = "| " + title
+//     .padStart(((bannerWidth - 4 + title.length) / 2), " ")
+//     .padEnd(bannerWidth - 3, " ") + "|";
 
-  console.log(topLine);
-  console.log(middleLine);
-  console.log(topLine);
+//   console.log(topLine);
+//   console.log(middleLine);
+//   console.log(topLine);
+// }
+// todos.js
+function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
+  const basicProgram = `
+          LET bannerWidth = ${width}
+          LET title$ = "${title}"
+
+          IF LEN(title$) + 4 > bannerWidth THEN
+            LET bannerWidth = LEN(title$) + 4
+          END IF
+
+          PRINT "+"; STRING$(bannerWidth-2, "-"); "+"
+          LET padding = (bannerWidth - LEN(title$)) / 2
+          PRINT "|"; SPACE$(padding-1); title$; SPACE$(bannerWidth - LEN(title$) - padding - 1); "|"
+          PRINT "+"; STRING$(bannerWidth-2, "-"); "+"
+          `;
+
+  // Run in browser with wwwBASIC loaded
+  if (typeof basic !== "undefined") {
+    basic.Basic(basicProgram);
+  } else {
+    // Fallback: log BASIC source in Node console
+    console.log(basicProgram);
+  }
 }
 
 // function showDisclaimer() {
