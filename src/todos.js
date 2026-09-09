@@ -4,6 +4,7 @@
 import readline from 'readline';
 import db from './db.js';
 import Todo from './models/Todo.js';
+import basic from 'wwwbasic';
 
 const SCREEN_WIDTH = 80
 const SCREEN_TITLE = "Stuart's Todo List"
@@ -409,30 +410,56 @@ function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
   console.log(topLine);
 }
 
+// function showDisclaimer() {
+//   const width = 80;
+//   const topLine = "+" + "-".repeat(width - 2) + "+";
+
+//   const lines = [
+//     "DISCLAIMER:",
+//     " ", 
+//     "This software was generated with the assistance of AI (Copilot).",
+//     "It is provided strictly on an \"as is\" basis, without warranties of any kind,",
+//     "whether express or implied, including but not limited to merchantability,",
+//     "fitness for a particular purpose, or non-infringement.",
+//     " ",
+//     "The author and Copilot assume no responsibility or liability for any loss of",
+//     "data, damages, or consequences arising from the use of this program.",
+//     "By continuing, you acknowledge that you use this software entirely at your",
+//     "own risk and discretion."
+//   ];
+
+//   console.log(topLine);
+//   lines.forEach(line => {
+//     const padded = " " + line.padEnd(width - 3, " ");
+//     console.log("|" + padded + "|");
+//   });
+//   console.log(topLine);
+// }
 function showDisclaimer() {
-  const width = 80;
-  const topLine = "+" + "-".repeat(width - 2) + "+";
+  const basicProgram = `
+          LET WIDTH = 80
+          PRINT "+"; STRING$(WIDTH-2, "-"); "+"
+          PRINT "| DISCLAIMER:                                                                  |"
+          PRINT "|                                                                              |"
+          PRINT "| This software was generated with the assistance of AI (Copilot).             |"
+          PRINT "| It is provided strictly on an 'as is' basis, without warranties of any kind, |"
+          PRINT "| whether express or implied, including but not limited to merchantability,    |"
+          PRINT "| fitness for a particular purpose, or non-infringement.                       |"
+          PRINT "|                                                                              |"
+          PRINT "| The author and Copilot assume no responsibility or liability for any loss of |"
+          PRINT "| data, damages, or consequences arising from the use of this program.         |"
+          PRINT "| By continuing, you acknowledge that you use this software entirely at your   |"
+          PRINT "| own risk and discretion.                                                     |"
+          PRINT "+"; STRING$(WIDTH-2, "-"); "+"
+        `;
 
-  const lines = [
-    "DISCLAIMER:",
-    " ", 
-    "This software was generated with the assistance of AI (Copilot).",
-    "It is provided strictly on an \"as is\" basis, without warranties of any kind,",
-    "whether express or implied, including but not limited to merchantability,",
-    "fitness for a particular purpose, or non-infringement.",
-    " ",
-    "The author and Copilot assume no responsibility or liability for any loss of",
-    "data, damages, or consequences arising from the use of this program.",
-    "By continuing, you acknowledge that you use this software entirely at your",
-    "own risk and discretion."
-  ];
-
-  console.log(topLine);
-  lines.forEach(line => {
-    const padded = " " + line.padEnd(width - 3, " ");
-    console.log("|" + padded + "|");
-  });
-  console.log(topLine);
+  // Run in browser with wwwBASIC loaded
+  if (typeof basic !== "undefined") {
+    basic.Basic(basicProgram);
+  } else {
+    // Fallback: log BASIC source in Node console
+    console.log(basicProgram);
+  }
 }
 
 function pressAnyKey() {
