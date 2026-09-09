@@ -424,7 +424,7 @@ function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
           END IF
 
           PRINT "+"; STRING$(bannerWidth-2, "-"); "+"
-          LET padding = (bannerWidth - LEN(title$)) / 2
+          LET padding = INT((bannerWidth - LEN(title$)) / 2)          
           PRINT "|"; SPACE$(padding-1); title$; SPACE$(bannerWidth - LEN(title$) - padding - 1); "|"
           PRINT "+"; STRING$(bannerWidth-2, "-"); "+"
           `;
