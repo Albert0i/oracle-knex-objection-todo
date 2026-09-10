@@ -14,17 +14,41 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+// function showMenu() {
+//   console.clear();
+//   showBanner();
+
+//   console.log(" 1) List todos");
+//   console.log(" 2) Add todo");
+//   console.log(" 3) Change todo");
+//   console.log(" 4) Toggle todo");
+//   console.log(" 5) Delete todo");
+//   console.log(" 6) Delete all todos (Danger)");
+//   console.log(" 7) Exit");
+//   rl.question(" \nEnter a number (1-7): ", handleChoice);
+// }
 function showMenu() {
+  const basicProgram = `
+          10 PRINT " 1) List todos"
+          20 PRINT " 2) Add todo"
+          30 PRINT " 3) Change todo"
+          40 PRINT " 4) Toggle todo"
+          50 PRINT " 5) Delete todo"
+          60 PRINT " 6) Delete all todos (Danger)"
+          70 PRINT " 7) Exit"
+        `;
+
   console.clear();
   showBanner();
 
-  console.log(" 1) List todos");
-  console.log(" 2) Add todo");
-  console.log(" 3) Change todo");
-  console.log(" 4) Toggle todo");
-  console.log(" 5) Delete todo");
-  console.log(" 6) Delete all todos (Danger)");
-  console.log(" 7) Exit");
+  // Run in browser with wwwBASIC loaded
+  if (typeof basic !== "undefined") {
+    basic.Basic(basicProgram);
+  } else {
+    // Fallback: log BASIC source in Node console
+    console.log(basicProgram);
+  }
+
   rl.question(" \nEnter a number (1-7): ", handleChoice);
 }
 
@@ -416,18 +440,18 @@ async function exitProgram() {
 // todos.js
 function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
   const basicProgram = `
-          LET bannerWidth = ${width}
-          LET title$ = "${title}"
+          10 LET bannerWidth = ${width}
+          20 LET title$ = "${title}"
 
-          IF LEN(title$) + 4 > bannerWidth THEN
-            LET bannerWidth = LEN(title$) + 4
-          END IF
+          30 IF LEN(title$) + 4 > bannerWidth THEN
+          40  LET bannerWidth = LEN(title$) + 4
+          50 END IF
 
-          PRINT "+"; STRING$(bannerWidth-2, "-"); "+"
-          LET padding = INT((bannerWidth - LEN(title$)) / 2)          
-          PRINT "|"; SPACE$(padding-1); title$; SPACE$(bannerWidth - LEN(title$) - padding - 1); "|"
-          PRINT "+"; STRING$(bannerWidth-2, "-"); "+"
-          `;
+          60 PRINT "+"; STRING$(bannerWidth-2, "-"); "+"
+          70 LET padding = INT((bannerWidth - LEN(title$)) / 2)          
+          80 PRINT "|"; SPACE$(padding-1); title$; SPACE$(bannerWidth - LEN(title$) - padding - 1); "|"
+          90 PRINT "+"; STRING$(bannerWidth-2, "-"); "+"
+        `;
 
   // Run in browser with wwwBASIC loaded
   if (typeof basic !== "undefined") {
@@ -465,20 +489,20 @@ function showBanner(title = SCREEN_TITLE, width = SCREEN_WIDTH) {
 // }
 function showDisclaimer() {
   const basicProgram = `
-          LET WIDTH = 80
-          PRINT "+"; STRING$(WIDTH-2, "-"); "+"
-          PRINT "| DISCLAIMER:                                                                  |"
-          PRINT "|                                                                              |"
-          PRINT "| This software was generated with the assistance of AI (Copilot).             |"
-          PRINT "| It is provided strictly on an 'as is' basis, without warranties of any kind, |"
-          PRINT "| whether express or implied, including but not limited to merchantability,    |"
-          PRINT "| fitness for a particular purpose, or non-infringement.                       |"
-          PRINT "|                                                                              |"
-          PRINT "| The author and Copilot assume no responsibility or liability for any loss of |"
-          PRINT "| data, damages, or consequences arising from the use of this program.         |"
-          PRINT "| By continuing, you acknowledge that you use this software entirely at your   |"
-          PRINT "| own risk and discretion.                                                     |"
-          PRINT "+"; STRING$(WIDTH-2, "-"); "+"
+          10  LET WIDTH = 80
+          20  PRINT "+"; STRING$(WIDTH-2, "-"); "+"
+          30  PRINT "| DISCLAIMER:                                                                  |"
+          40  PRINT "|                                                                              |"
+          50  PRINT "| This software was generated with the assistance of AI (Copilot).             |"
+          60  PRINT "| It is provided strictly on an 'as is' basis, without warranties of any kind, |"
+          70  PRINT "| whether express or implied, including but not limited to merchantability,    |"
+          80  PRINT "| fitness for a particular purpose, or non-infringement.                       |"
+          90  PRINT "|                                                                              |"
+          100 PRINT "| The author and Copilot assume no responsibility or liability for any loss of |"
+          110 PRINT "| data, damages, or consequences arising from the use of this program.         |"
+          120 PRINT "| By continuing, you acknowledge that you use this software entirely at your   |"
+          130 PRINT "| own risk and discretion.                                                     |"
+          140 PRINT "+"; STRING$(WIDTH-2, "-"); "+"
         `;
 
   // Run in browser with wwwBASIC loaded
