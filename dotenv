@@ -1,8 +1,33 @@
-
+#
+# Oracle 
+#
 DB_USER=your_username
 
 DB_PASSWORD=your_secure_password
 
 DB_CONNECTION_STRING=localhost/XEPDB1
 
+
+#
+# MariaDB
+#
+DB_USER=your_username
+
+DB_PASSWORD=your_secure_password
+
+DB_HOST=your_host
+
+DB_DATABASE=your_database
+
+
+#
+# SQLite 
+#
+DB_FILENAME='./data/mydb.db'
+
+
 NODE_ENV=development
+
+#
+# EOF 
+#
