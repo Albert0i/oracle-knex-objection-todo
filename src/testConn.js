@@ -5,13 +5,14 @@ import db from './db.js';
 
 async function testConnection() {
   try {
-    // Run a simple query to confirm MariaDB connectivity
-    // VERSION() returns the exact string version of your MariaDB engine
-    const result = await db.raw('SELECT VERSION() AS mariadb_version');
+    // 1. Run a generic core runtime metadata query for SQLite
+    // sqlite_version() is the standard built-in function to query engine parameters
+    const result = await db.raw('SELECT sqlite_version() AS sqlite_version');
     
-    // In Knex with the mysql2 driver, data rows populate the first index array element
-    const version = result[0][0].mariadb_version;
-    console.log(`✅ Connection OK! MariaDB Server version: ${version}`);
+    // 2. Extract data payload properties safely
+    // Unlike mysql2, better-sqlite3 returns a clean, flat Array of Objects immediately
+    const version = result[0].sqlite_version;
+    console.log(`✅ Connection OK! SQLite Server version: ${version}`);
 
   } catch (err) {
     console.error('❌ Connection failed:', err);

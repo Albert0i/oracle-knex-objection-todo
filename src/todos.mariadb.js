@@ -392,7 +392,7 @@ async function deleteAllTodos() {
              * Reset the sequence to start at 1.
              * Separate native SQL command to reset the auto-increment ID field back to 1
              */
-            await db.raw("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'TODO_LIST';");
+            await db.raw('ALTER TABLE TODO_LIST AUTO_INCREMENT = 1;');
             
             console.log(`All ${count} todos deleted successfully.`);
           } else {

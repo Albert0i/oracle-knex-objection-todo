@@ -8,10 +8,13 @@ export default {
    * Development
    */
   development: {
-    client: 'better-sqlite3',
+    client: 'mysql2',
     connection: {
-      filename: process.env.DB_FILENAME,
-      flags: ['OPEN_URI', 'OPEN_SHAREDCACHE']
+      host: process.env.DB_HOST,
+      port: process.env.DB_PORT,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE
     },
     migrations: {
       directory: './migrations',
@@ -30,10 +33,13 @@ export default {
    * Production
    */
   production: {
-    client: 'better-sqlite3',
+    client: 'mysql2',
     connection: {
-      filename: process.env.PRODUCTION_DB_FILENAME,
-      flags: ['OPEN_URI', 'OPEN_SHAREDCACHE']
+      host: process.env.PRODUCTION_DB_HOST,
+      port: process.env.PRODUCTION_DB_PORT,
+      user: process.env.PRODUCTION_DB_USER,
+      password: process.env.PRODUCTION_DB_PASSWORD,
+      database: process.env.PRODUCTION_DB_DATABASE
     },
     pool: { min: 2, max: 10 }
   }
@@ -42,8 +48,4 @@ export default {
 /**
  * Knex.js Installation
  * https://knexjs.org/guide/
- * 
- * sqlite does not support inserting default values. 
- * Set the `useNullAsDefault` flag to hide this warning. 
- * (see docs https://knexjs.org/guide/query-builder.html#insert).
  */

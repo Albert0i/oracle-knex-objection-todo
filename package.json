@@ -10,13 +10,15 @@
     "migrate:latest": "knex migrate:latest --knexfile knexfile.js",
     "migrate:rollback": "knex migrate:rollback --knexfile knexfile.js",
     "seed:make": "knex seed:make --knexfile knexfile.js",
-    "seed:run": "knex seed:run --knexfile knexfile.js"
+    "seed:run": "knex seed:run --knexfile knexfile.js",
+    "sql": "sqlite3 ./data/mydb.db"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "better-sqlite3": "^13.0.3",
     "dotenv": "^17.4.2",
     "knex": "^3.3.0",
     "mysql2": "^3.24.4",
