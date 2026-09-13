@@ -1,10 +1,10 @@
-### Sequel to 'Tutorial: Building an Oracle Todo App with Objection.js + Knex.js'
+### Sequel One to 'Tutorial: Building an Oracle Todo App with Objection.js + Knex.js'
 
 
 #### Prologue 
 
 
-#### As of [MariaDB](https://mariadb.org/)  
+#### I. As of [MariaDB](https://mariadb.org/)  
 > If you want to use a MariaDB instance, you can use the [mysql](https://www.npmjs.com/package/mysql) driver. MySQL and MySQL2 work the same way...
 
 > While the [official Knex.js documentation](https://knexjs.org/guide/) states that you can use the legacy mysql client for MySQL or MariaDB instances, **[mysql2](https://www.npmjs.com/package/mysql2) is the modern, industry-standard recommendation** for Knex projects targeting MariaDB. 
@@ -44,7 +44,7 @@ export default {
 };
 ```
 
-
+#### II. As of Case
 `20260829105716_create_todo_list.js`
 ```
 /**
@@ -144,7 +144,12 @@ npx knex migrate:list
 npx knex seed:run
 ```
 
+![alt mariadb-knex-list-migrate-seed-1](img/mariadb-knex-list-migrate-seed-1.png)
 
+![alt mariadb-knex-list-migrate-seed-2](img/mariadb-knex-list-migrate-seed-2.png)
+
+
+#### III. As of Connection
 `testConn.js`
 ```
 /**
@@ -180,6 +185,17 @@ node src/updateTodos.js
 node src/todos.js
 ```
 
+![alt mariadb-test-querytodos](img/mariadb-test-querytodos.png)
+
+![alt mariadb-querytodos-updatetodos](img/mariadb-querytodos-updatetodos.png)
+
+
+#### IV. As of Sequence
+
+![alt mariadb-delete-all-todos-1](img/mariadb-delete-all-todos-1.png)
+
+![alt mariadb-delete-all-todos-2](img/mariadb-delete-all-todos-2.png)
+
 ```
     /**
       * Reset the sequence to start at 1.
@@ -195,3 +211,12 @@ node src/todos.js
       */
     await db.raw('ALTER TABLE TODO_LIST AUTO_INCREMENT = 1;');
 ```
+
+
+#### V. 
+
+
+#### Epilogue 
+
+
+### EOF (2026/09/18)
