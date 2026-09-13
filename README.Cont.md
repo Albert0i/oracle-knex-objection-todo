@@ -144,3 +144,54 @@ npx knex migrate:list
 npx knex seed:run
 ```
 
+
+`testConn.js`
+```
+/**
+ * testConn.js
+ */
+import db from './db.js';
+
+async function testConnection() {
+  try {
+    // Run a simple query to confirm MariaDB connectivity
+    // VERSION() returns the exact string version of your MariaDB engine
+    const result = await db.raw('SELECT VERSION() AS mariadb_version');
+    
+    // In Knex with the mysql2 driver, data rows populate the first index array element
+    const version = result[0][0].mariadb_version;
+    console.log(`✅ Connection OK! MariaDB Server version: ${version}`);
+
+  } catch (err) {
+    console.error('❌ Connection failed:', err);
+  } finally {
+    // Always close the pool
+    await db.destroy();
+  }
+}
+
+testConnection();
+```
+
+```
+node src/queryTodos.js 
+node src/updateTodos.js
+
+node src/todos.js
+```
+
+```
+    /**
+      * Reset the sequence to start at 1.
+      * For todo_list created with knex migrate.
+      */
+    await db.raw('ALTER SEQUENCE "todo_list_seq" RESTART START WITH 1');
+```
+
+```
+    /**
+      * Reset the sequence to start at 1.
+      * Separate native SQL command to reset the auto-increment ID field back to 1
+      */
+    await db.raw('ALTER TABLE TODO_LIST AUTO_INCREMENT = 1;');
+```

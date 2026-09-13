@@ -390,9 +390,9 @@ async function deleteAllTodos() {
           if (deleted) {
             /**
              * Reset the sequence to start at 1.
-             * Separate native SQL command to reset the auto-increment ID field back to 1
+             * For todo_list created with knex migrate.
              */
-            await db.raw('ALTER TABLE TODO_LIST AUTO_INCREMENT = 1;');
+            await db.raw('ALTER SEQUENCE "todo_list_seq" RESTART START WITH 1');
             
             console.log(`All ${count} todos deleted successfully.`);
           } else {
