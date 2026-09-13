@@ -11,7 +11,9 @@ export default {
     client: 'better-sqlite3',
     connection: {
       filename: process.env.DB_FILENAME,
-      flags: ['OPEN_URI', 'OPEN_SHAREDCACHE']
+      options: {
+        useNullAsDefault: true
+      }
     },
     migrations: {
       directory: './migrations',
@@ -33,7 +35,9 @@ export default {
     client: 'better-sqlite3',
     connection: {
       filename: process.env.PRODUCTION_DB_FILENAME,
-      flags: ['OPEN_URI', 'OPEN_SHAREDCACHE']
+      options: {
+        useNullAsDefault: true
+      }
     },
     pool: { min: 2, max: 10 }
   }
