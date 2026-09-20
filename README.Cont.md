@@ -2,7 +2,7 @@
 
 
 #### Prologue 
-It is *tedious* to work with one database all the time...
+It is *tedious* to work with only one database all the time...
 
 
 #### I. As of [MariaDB](https://mariadb.org/)  
