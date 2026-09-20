@@ -1,7 +1,8 @@
-### Sequel One to 'Tutorial: Building an Oracle Todo App with Objection.js + Knex.js'
+### Sequel to 'Tutorial: Building an Oracle Todo App with Objection.js + Knex.js'
 
 
 #### Prologue 
+It is *banal* to stick to a single database all the time. To use MariaDB as backend storage, it is necessary to make some changes...   
 
 
 #### I. As of [MariaDB](https://mariadb.org/)  
@@ -12,6 +13,8 @@
 ```
 npm install mysql2
 ```
+
+Then, use different driver like so: 
 
 `knex.js`
 ```
@@ -45,6 +48,8 @@ export default {
 ```
 
 #### II. As of Case
+The advantage of using knex is that We can safely re-use verbatim the the previous migration and seed. 
+
 `20260829105716_create_todo_list.js`
 ```
 /**
@@ -84,7 +89,7 @@ export async function down(knex) {
 }
 ```
 
-> By default on Linux (Zorin OS/Debian), MariaDB matches the underlying filesystem case-sensitivity. This means `Users` and `users` are treated as two different tables.
+> By default on Linux, MariaDB matches the underlying filesystem case-sensitivity. This means `Users` and `users` are treated as two different tables.
 
 > To force MariaDB to ignore case completely, you must set the system variable **lower_case_table_names** to **1**. Since we are managing your infrastructure via Docker, the cleanest way to apply this is by passing the variable directly as a startup command flag inside your MariaDB service block in your `docker-compose.yml`. Open your file and append the `--lower_case_table_names=1` command flag:
 
@@ -102,7 +107,6 @@ services:
     command: --lower_case_table_names=1
     restart: unless-stopped
 ```
-
 
 `seed_todos.js`
 ```
@@ -136,6 +140,7 @@ export async function seed(knex) {
 }
 ```
 
+And run the commands like so: 
 ```
 npx knex migrate:list 
 npx knex migrate:latest 
@@ -150,6 +155,8 @@ npx knex seed:run
 
 
 #### III. As of Connection
+Database specific operation must be be modified. 
+
 `testConn.js`
 ```
 /**
@@ -178,6 +185,7 @@ async function testConnection() {
 testConnection();
 ```
 
+And no need to change a single line on `Todo.js` model. 
 ```
 node src/queryTodos.js 
 node src/updateTodos.js
@@ -191,11 +199,7 @@ node src/todos.js
 
 
 #### IV. As of Sequence
-
-![alt mariadb-delete-all-todos-1](img/mariadb-delete-all-todos-1.png)
-
-![alt mariadb-delete-all-todos-2](img/mariadb-delete-all-todos-2.png)
-
+The only code we need to modified in `todos.js` is `deleteAllTodos` function which make use of MariaDB specific operation to reset the sequence:  
 ```
     /**
       * Reset the sequence to start at 1.
@@ -204,6 +208,7 @@ node src/todos.js
     await db.raw('ALTER SEQUENCE "todo_list_seq" RESTART START WITH 1');
 ```
 
+Differs from Oracle: 
 ```
     /**
       * Reset the sequence to start at 1.
@@ -212,11 +217,23 @@ node src/todos.js
     await db.raw('ALTER TABLE TODO_LIST AUTO_INCREMENT = 1;');
 ```
 
+As you can see, using `knex` can not garantee 100% isolation. 
 
-#### V. 
+![alt mariadb-delete-all-todos-1](img/mariadb-delete-all-todos-1.png)
+
+![alt mariadb-delete-all-todos-2](img/mariadb-delete-all-todos-2.png)
+
+
+
+#### V. As of [SQLite](https://sqlite.org/)
+Moving down one more level incurs even more compability issues. 
+
+
+
 
 
 #### Epilogue 
 
 
-### EOF (2026/09/18)
+
+### EOF (2026/09/35)
