@@ -2,7 +2,7 @@
 
 
 #### Prologue 
-It is *banal* to stick to a single database all the time. To use MariaDB as backend storage, it is necessary to make some changes...   
+It is *tedious* to work with only one database all the time...
 
 
 #### I. As of [MariaDB](https://mariadb.org/)  
@@ -226,10 +226,150 @@ As you can see, using `knex` can not garantee 100% isolation.
 
 
 #### V. As of [SQLite](https://sqlite.org/)
-Moving down one more level incurs even more compability issues. 
+> When you use the [SQLite3](https://www.npmjs.com/package/sqlite3) or [Better-SQLite3](https://www.npmjs.com/package/better-sqlite3) adapter, there is a filename required, not a network connection. 
+
+```
+npm install better-sqlite3
+```
+
+Then, use different driver like so:
+
+`knex.js` 
+```
+export default {
+  /**
+   * Development
+   */
+  development: {
+    client: 'better-sqlite3',
+    connection: {
+      filename: process.env.DB_FILENAME,
+      options: {
+        useNullAsDefault: true
+      }
+    },
+    migrations: {
+      directory: './migrations',
+      tableName: 'knex_migrations',
+      stub: './stubs/migration.stub'
+    },
+    seeds: {
+      directory: './seeds',
+      stub: './stubs/seed.stub'
+    },
+    debug: false,              // log SQL queries to console
+    asyncStackTraces: false,   // show full async stack traces on errors
+    fetchAsString: [ 'DATE', 'NUMBER' ], // return DATE/NUMBER columns as strings
+  }
+};
+```
+
+And run the commands like so:
+
+```
+npx knex migrate:list 
+npx knex migrate:latest 
+npx knex migrate:list 
+
+npx knex seed:run
+```
+
+![alt sqlite-knex-list-migrate-seed-1](img/sqlite-knex-list-migrate-seed-1.png)
+
+![alt sqlite-knex-list-migrate-seed-2](img/sqlite-knex-list-migrate-seed-2.png)
+
+Database specific operation must be be modified.
+
+`testConn,js` 
+```
+/**
+ * testConn.js
+ */
+import db from './db.js';
+
+async function testConnection() {
+  try {
+    // 1. Run a generic core runtime metadata query for SQLite
+    // sqlite_version() is the standard built-in function to query engine parameters
+    const result = await db.raw('SELECT sqlite_version() AS sqlite_version');
+    
+    // 2. Extract data payload properties safely
+    // Unlike mysql2, better-sqlite3 returns a clean, flat Array of Objects immediately
+    const version = result[0].sqlite_version;
+    console.log(`✅ Connection OK! SQLite Server version: ${version}`);
+
+  } catch (err) {
+    console.error('❌ Connection failed:', err);
+  } finally {
+    // Always close the pool
+    await db.destroy();
+  }
+}
+
+testConnection();
+```
+
+Further changes to `Todo.js` model.
+
+```
+/**
+ * Todo.js
+ */
+import { Model } from 'objection';
+
+class Todo extends Model {
+  static get tableName() {
+    return 'TODO_LIST';
+  }
+
+  static get idColumn() {
+    return 'ID';
+  }
+
+  static get columnNameMappers() {
+    return {
+      parse(obj) {
+        return {
+          id: obj.ID,
+          title: obj.TITLE,
+          status: obj.STATUS,
+          createdAt: obj.CREATED_AT
+        };
+      },
+      format(javascriptObj) {
+        if (!javascriptObj) return javascriptObj;
+        const dbPayload = {};
+        
+        // Map fields safely only if they are defined on your code object
+        if (javascriptObj.id !== undefined) dbPayload.ID = javascriptObj.id;
+        if (javascriptObj.title !== undefined) dbPayload.TITLE = javascriptObj.title;
+        if (javascriptObj.status !== undefined) dbPayload.STATUS = javascriptObj.status;
+        if (javascriptObj.createdAt !== undefined) dbPayload.CREATED_AT = javascriptObj.createdAt;
+        
+        return dbPayload;
+      }
+    };
+  }
+}
+
+export default Todo; 
+```
+
+```
+node src/queryTodos.js 
+node src/updateTodos.js
+
+node src/todos.js
+```
+
+![alt sqlite-test-querytodos](img/sqlite-test-querytodos.png)
+
+![alt sqlite-querytodos-updatetodos](img/sqlite-querytodos-updatetodos.png)
+
+![alt sqlite-no-default-error](img/sqlite-no-default-error.png)
 
 
-
+#### VI. Summary 
 
 
 #### Epilogue 
