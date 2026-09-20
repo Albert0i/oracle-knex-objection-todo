@@ -368,12 +368,30 @@ node src/todos.js
 
 ![alt sqlite-no-default-error](img/sqlite-no-default-error.png)
 
+And of course, SQLite use different way to reset the sequence: 
+
+```
+    /**
+      * Reset the sequence to start at 1.
+      * Separate native SQL command to reset the auto-increment ID field back to 1
+      */
+    await db.raw("UPDATE sqlite_sequence SET seq = 0 WHERE name = 'TODO_LIST';");
+```
+
 
 #### VI. Summary 
+In short, if you are using **Code-First** approach, you need to: 
+
+1. Use [Knex.js](https://knexjs.org/) [Migrations CLI](https://knexjs.org/guide/migrations.html#migration-cli) to create database tables;
+2. Use [Knex.js](https://knexjs.org/) [Seed CLI](https://knexjs.org/guide/migrations.html#seed-cli) to feed tables with sample data;
+3. Use [Knex.js](https://knexjs.org/) [Query Builder](https://knexjs.org/guide/query-builder.html#knex) or [Raw](https://knexjs.org/guide/raw.html) access to database tables; 
+4. Use [Objection.js](https://vincit.github.io/objection.js/) to add **Model** and integrated with [Knex.js](https://knexjs.org/) and access to database in way of ORM. 
+
+If you are using **Database-First** approach and populate data by yourself, you only need step 3 and/or in the above list.  
 
 
 #### Epilogue 
-
+It is more *tedious* to work with multiple databases and even this idea is tedious to think of... 
 
 
 ### EOF (2026/09/35)
